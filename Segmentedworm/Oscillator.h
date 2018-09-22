@@ -16,7 +16,7 @@ class Oscillator
     double weight[TOTSEG*3];
   public:
     Oscillator();
-    ~Oscillator();
+    //~Oscillator();
     Oscillator(int order, double freq, double phase, double weight[]);
     int getOrder(); //get Order
     double getPhase(); //get Phase

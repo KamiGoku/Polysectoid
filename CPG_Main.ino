@@ -1,6 +1,6 @@
 #include <Oscillator.h>
 #include <BasicLinearAlgebra.h>
-#include <math.h> 
+#include <math.h>
 #include <Pattern.h>
 
 #define scale 1000 //factor 10^3 doe millisecond
@@ -28,12 +28,13 @@ void setup() {
 }
 
 void loop() {
-  /*// put your main code here, to run repeatedly:
+  // put your main code here, to run repeatedly:
   double weight[5]={3.2,4.5,7.8,9,10};
-  Oscillator testSeg(1,0,weight);
+  Oscillator testSeg(1,0,0,weight);
   //Serial << sizeof(double);
   for(int i=0;i<5;i++){
     Serial << (double) testSeg.getWeight(i) << '\n';
     delay(800);
-  }*/
+  }
 }
+
