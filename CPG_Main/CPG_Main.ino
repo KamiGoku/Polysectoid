@@ -22,19 +22,26 @@ double phaseUpdate(double phase, double trinFreq, double* inPhase, double* inWei
   return temp;
 }
 
+int sensorPin = A0;    // select the input pin for the potentiometer
+int sensorValue = 0;  // variable to store the value coming from the sensor
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
+  pinMode(sensorPin, INPUT);
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  Serial << analogRead(sensorPin) << '\n';
+  delay(10);
+  
+  /*// put your main code here, to run repeatedly:
   double weight[5]={3.2,4.5,7.8,9,10};
   Oscillator testSeg(1,0,0,weight);
   //Serial << sizeof(double);
   for(int i=0;i<5;i++){
     Serial << (double) testSeg.getWeight(i) << '\n';
     delay(800);
-  }
+  }*/
 }
 
