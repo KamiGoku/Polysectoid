@@ -2,18 +2,21 @@
 #include <BasicLinearAlgebra.h>
 #include <math.h>
 #include <Pattern.h>
+#include <RingBuf.h>
 
 #define scale 1000 //factor 10^3 doe millisecond
 
 template<class T> inline Print &operator <<(Print &obj, T arg) { obj.print(arg); return obj; } //To make the " Serial << output " syntax possible
 const double dt=0.002;
-
+RingBuf *buf1 = RingBuf_new(sizeof(double), 1);
+RingBuf *buf2 = RingBuf_new(sizeof(double), 1);
 double phaseUpdate(double phase, double trinFreq, double* inPhase, double* inWeight, double* inBias){//current phase, intrinsic frequency, coupled phases, coupled weight, coupled bias
   if(sizeof(inPhase)!=sizeof(inWeight)){
     return -1;//phase 0<=x<360
   }
   int N = sizeof(inPhase);
   double sum = 0;
+  
   for(int i = 0; i < N; i++){
     sum += inWeight[i]*sin(inPhase[i] - phase - inBias[i]);//calculate the total weight phase
   }
@@ -44,4 +47,3 @@ void loop() {
     delay(800);
   }*/
 }
-
