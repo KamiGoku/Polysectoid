@@ -5,13 +5,17 @@
 #include <RingBuf.h>
 
 #define scale 1000 //factor 10^3 doe millisecond
+#define FS 30 //size of filter buffer
 
 template<class T> inline Print &operator <<(Print &obj, T arg) { obj.print(arg); return obj; } //To make the " Serial << output " syntax possible
 const double dt=0.002;
-RingBuf *buf1 = RingBuf_new(sizeof(double), 1);
+uint16_t filter_buffer[FS] = {0};
+int filter_idx = 0;
+bool isFull = false;
+/*RingBuf *buf1 = RingBuf_new(sizeof(double), 1);
 RingBuf *buf2 = RingBuf_new(sizeof(double), 1);
 double testarr[10] = {1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0};
-int i = 0;
+int i = 0;*/
 double phaseUpdate(double phase, double trinFreq, double* inPhase, double* inWeight, double* inBias){//current phase, intrinsic frequency, coupled phases, coupled weight, coupled bias
   if(sizeof(inPhase)!=sizeof(inWeight)){
     return -1;//phase 0<=x<360
@@ -33,7 +37,7 @@ int sensorValue = 0;  // variable to store the value coming from the sensor
 void setup() {
   // put your setup code here, to run once:
 
-  cli(); //disable interrupts 
+  /*cli(); //disable interrupts 
   
   //first, set up interrupts
   //set timer0 interrupt at 2kHz
@@ -62,13 +66,13 @@ void setup() {
   // enable timer compare interrupt
   TIMSK1 |= (1 << OCIE1A);
 
-  sei(); //enable interrupts
+  sei(); //enable interrupts*/
   
   Serial.begin(9600);
   pinMode(sensorPin, INPUT);
 }
 
-ISR(TIMER0_COMPA_vect){//timer0 interrupt 2kHz
+/*ISR(TIMER0_COMPA_vect){//timer0 interrupt 2kHz
 //This writes to buf1
   buf1->add(buf1, &testarr[i]);
   i = (i + 1) % 10;
@@ -77,27 +81,43 @@ ISR(TIMER0_COMPA_vect){//timer0 interrupt 2kHz
 ISR(TIMER1_COMPA_vect){//timer1 interrupt 4kHz
   if (!buf1->isEmpty) {
     //there is one double in the buffer
-    double d;
+    static double d;
     buf1->pull(buf1, &d);
     buf2->add(buf2, &d);
   }
-}
+}*/
 
 void loop() {
   //Serial << analogRead(sensorPin) << '\n';
-  //delay(10);
-
-  if (!buf2->isEmpty) {
-    double d;
-    buf2->pull(buf2, &d);
-    Serial.println(d);
+  uint16_t s_val = analogRead(sensorPin);
+  //filter_buffer->add(filter_buffer, &s_val);
+  filter_buffer[filter_idx] = s_val;
+  filter_idx = (filter_idx + 1) % FS;
+  if (filter_idx == 0) isFull = true;
+  double avg;
+  double sum = 0;
+  int current_idx;
+  if (isFull) current_idx = FS;
+  else current_idx = filter_idx;
+  for (int i = 0; i < current_idx; i++) {
+    sum += (double) filter_buffer[i];
   }
+  avg = sum/((double) current_idx);
+  Serial << ((uint16_t) avg) << '\n';
+  delay(10);
+
+  /*if (!buf2->isEmpty) {
+    static double d;
+    buf2->pull(buf2, &d);
+    
+  }
+  Serial << 1;
 
   long start = micros();
   long end = 0;
   do {
     end = micros();
-  } while (start + 250 >= end);
+  } while (start + 250 >= end);*/
   
   /*// put your main code here, to run repeatedly:
   double weight[5]={3.2,4.5,7.8,9,10};
