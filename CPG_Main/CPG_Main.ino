@@ -15,7 +15,7 @@ bool isFull = false;
 /*RingBuf *buf1 = RingBuf_new(sizeof(double), 1);
 RingBuf *buf2 = RingBuf_new(sizeof(double), 1);
 double testarr[10] = {1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0};
-int i = 0;*/
+int buf_idx = 0;*/
 double phaseUpdate(double phase, double trinFreq, double* inPhase, double* inWeight, double* inBias){//current phase, intrinsic frequency, coupled phases, coupled weight, coupled bias
   if(sizeof(inPhase)!=sizeof(inWeight)){
     return -1;//phase 0<=x<360
@@ -74,12 +74,14 @@ void setup() {
 
 /*ISR(TIMER0_COMPA_vect){//timer0 interrupt 2kHz
 //This writes to buf1
-  buf1->add(buf1, &testarr[i]);
-  i = (i + 1) % 10;
+  if (!buf1->isFull(buf1)) {
+    buf1->add(buf1, &testarr[buf_idx]);
+    buf_idx = (buf_idx + 1) % 10;
+  }
 }
 
 ISR(TIMER1_COMPA_vect){//timer1 interrupt 4kHz
-  if (!buf1->isEmpty) {
+  if (!buf1->isEmpty(buf1)) {
     //there is one double in the buffer
     static double d;
     buf1->pull(buf1, &d);
@@ -106,12 +108,12 @@ void loop() {
   Serial << ((uint16_t) avg) << '\n';
   delay(10);
 
-  /*if (!buf2->isEmpty) {
+  /*if (!buf2->isEmpty(buf2)) {
     static double d;
     buf2->pull(buf2, &d);
-    
+    Serial << d << '\n\;
   }
-  Serial << 1;
+  //Serial << 1;
 
   long start = micros();
   long end = 0;
