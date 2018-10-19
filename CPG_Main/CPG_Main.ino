@@ -4,18 +4,21 @@
 #include <Pattern.h>
 #include <RingBuf.h>
 
+
 #define scale 1000 //factor 10^3 doe millisecond
 #define FS 30 //size of filter buffer
 
 template<class T> inline Print &operator <<(Print &obj, T arg) { obj.print(arg); return obj; } //To make the " Serial << output " syntax possible
 const double dt=0.002;
-uint16_t filter_buffer[FS] = {0};
+/*uint16_t filter_buffer[FS] = {0};
 int filter_idx = 0;
-bool isFull = false;
-/*RingBuf *buf1 = RingBuf_new(sizeof(double), 1);
-RingBuf *buf2 = RingBuf_new(sizeof(double), 1);
+bool isFull = false;*/
+RingBuf *buf1 = RingBuf_new(sizeof(double), 10);
+RingBuf *buf2 = RingBuf_new(sizeof(double), 10);
 double testarr[10] = {1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0};
-int buf_idx = 0;*/
+int buf_idx = 0;
+unsigned long lastRead = 0;
+unsigned long interval = 250;
 double phaseUpdate(double phase, double trinFreq, double* inPhase, double* inWeight, double* inBias){//current phase, intrinsic frequency, coupled phases, coupled weight, coupled bias
   if(sizeof(inPhase)!=sizeof(inWeight)){
     return -1;//phase 0<=x<360
@@ -37,7 +40,7 @@ int sensorValue = 0;  // variable to store the value coming from the sensor
 void setup() {
   // put your setup code here, to run once:
 
-  /*cli(); //disable interrupts 
+  cli(); //disable interrupts 
   
   //first, set up interrupts
   //set timer0 interrupt at 2kHz
@@ -45,11 +48,11 @@ void setup() {
   TCCR0B = 0;// same for TCCR0B
   TCNT0  = 0;//initialize counter value to 0
   // set compare match register for 2khz increments
-  OCR0A = 124;// = (16*10^6) / (2000*64) - 1 (must be <256)
+  OCR0A = 236;// = (16*10^6) / (66*1024) - 1 (must be <256)     236
   // turn on CTC mode
   TCCR0A |= (1 << WGM01);
-  // Set CS01 and CS00 bits for 64 prescaler
-  TCCR0B |= (1 << CS01) | (1 << CS00);   
+  // Set CS01 and CS00 bits for 1024 prescaler
+  TCCR0B |= (1 << CS02) | (1 << CS00);   
   // enable timer compare interrupt
   TIMSK0 |= (1 << OCIE0A);
 
@@ -58,39 +61,49 @@ void setup() {
   TCCR1B = 0;// same for TCCR1B
   TCNT1  = 0;//initialize counter value to 0
   // set compare match register for 1hz increments
-  OCR1A = 499;// = (16*10^6) / (4000*8) - 1 (must be <65536)
+  OCR1A = 520;// = (16*10^6) / (30*1024) - 1 (must be <65536)  520
   // turn on CTC mode
   TCCR1B |= (1 << WGM12);
-  // Set CS10 and CS12 bits for 8 prescaler
-  TCCR1B |= (1 << CS11);  
+  // Set CS10 and CS12 bits for 1024 prescaler
+  TCCR1B |= (1 << CS12) || (1 << CS10);  
   // enable timer compare interrupt
   TIMSK1 |= (1 << OCIE1A);
 
-  sei(); //enable interrupts*/
+  sei(); //enable interrupts
   
   Serial.begin(9600);
   pinMode(sensorPin, INPUT);
 }
 
-/*ISR(TIMER0_COMPA_vect){//timer0 interrupt 2kHz
-//This writes to buf1
+ISR(TIMER0_COMPA_vect){//timer0 interrupt ~66Hz
+  if (!buf1->isEmpty(buf1)) {
+    //there is one double in the buffer
+    static double d;
+
+    if(!buf2->isFull(buf2)){
+          buf1->pull(buf1, &d);
+          buf2->add(buf2, &d);
+    }
+
+  }
+
+    /*if (!buf2->isEmpty(buf2)) {
+      static double dd;
+      buf2->pull(buf2, &dd);
+      Serial << dd << '\n';
+    }*/
+}
+
+ISR(TIMER1_COMPA_vect){//timer1 interrupt ~30Hz
+  //This writes to buf1
   if (!buf1->isFull(buf1)) {
     buf1->add(buf1, &testarr[buf_idx]);
     buf_idx = (buf_idx + 1) % 10;
   }
 }
 
-ISR(TIMER1_COMPA_vect){//timer1 interrupt 4kHz
-  if (!buf1->isEmpty(buf1)) {
-    //there is one double in the buffer
-    static double d;
-    buf1->pull(buf1, &d);
-    buf2->add(buf2, &d);
-  }
-}*/
-
 void loop() {
-  //Serial << analogRead(sensorPin) << '\n';
+  /*Serial << analogRead(sensorPin) << '\n';
   uint16_t s_val = analogRead(sensorPin);
   //filter_buffer->add(filter_buffer, &s_val);
   filter_buffer[filter_idx] = s_val;
@@ -106,16 +119,32 @@ void loop() {
   }
   avg = sum/((double) current_idx);
   Serial << ((uint16_t) avg) << '\n';
-  delay(10);
+  delay(10);*/
 
-  /*if (!buf2->isEmpty(buf2)) {
-    static double d;
-    buf2->pull(buf2, &d);
-    Serial << d << '\n\;
-  }
+  //Serial << micros() << '\n';
+  unsigned long us = micros();
+  /*Serial << us << '\n';
+  if (us - lastRead >= interval) {
+    lastRead += interval;
+    Serial << lastRead << '\n';
+    //Serial.println(micros());
+    while (!buf2->isEmpty(buf2)) {
+      static double d;
+      buf2->pull(buf2, &d);
+      //Serial << d << '\n';
+    }
+  }*/
   //Serial << 1;
 
-  long start = micros();
+      while (!buf2->isEmpty(buf2)) {
+        static double d;
+        buf2->pull(buf2, &d);
+        Serial << d << '\n';
+      }
+
+  //delay(1000000);
+
+  /*long start = micros();
   long end = 0;
   do {
     end = micros();
