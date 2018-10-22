@@ -17,11 +17,11 @@ void loop() {
     //rec_packet[4] = '\n';
 
     // Checking if data was meant for this arduino
-    if(rec_packet[0] == '0'){
+    //if(rec_packet[0] == '0'){
       // Perform some useful work
       Serial.write(rec_packet,5);           // Display the received value 
-      Serial.write('\n');
-    }
+      //Serial.write('\n');
+    //}
     
   }
 

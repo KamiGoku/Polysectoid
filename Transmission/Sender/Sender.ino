@@ -17,10 +17,17 @@ void loop() {
   // Sending Data
   char send_packet [5];
   int adcVal = analogRead(sensorPin);
-  itoa(adcVal,send_packet,10);
+  send_packet[4] = '\n';
+  send_packet[3] = (adcVal % 10)+0x30;
+  adcVal = adcVal/10;
+  send_packet[2] = (adcVal % 10)+0x30;
+  adcVal = adcVal/10;
+  send_packet[1] = (adcVal % 10)+0x30;
+  adcVal = adcVal/10;
+  send_packet[0] = (adcVal % 10) + 0x30;
 
   // Formatting Data
-  if(adcVal < 10){
+  /*if(adcVal < 10){
     send_packet[4] = send_packet[0];
     send_packet[3] = '0';
     send_packet[2] = '0';
@@ -43,12 +50,13 @@ void loop() {
     send_packet[3] = send_packet[2];
     send_packet[2] = send_packet[1];
     send_packet[1] = send_packet[0];
-  }
+  }*/
   
-  send_packet[0] = '0';
+  //send_packet[0] = '0';
   Serial.write(send_packet,5); 
+  //Serial.println(adcVal);
 
-  delay(4);
+  delay(100);
   
 }
 
