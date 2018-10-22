@@ -48,7 +48,7 @@ void loop() {
   send_packet[0] = '0';
   Serial.write(send_packet,5); 
 
-  delay(100);
+  delay(4);
   
 }
 
