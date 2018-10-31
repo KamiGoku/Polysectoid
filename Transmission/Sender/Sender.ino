@@ -56,7 +56,7 @@ void loop() {
   Serial.write(send_packet,5); 
   //Serial.println(adcVal);
 
-  delay(100);
+  delay(10);
   
 }
 

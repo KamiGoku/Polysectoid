@@ -35,6 +35,7 @@ double phaseUpdate(double phase, double trinFreq, double* inPhase, double* inWei
 }
 
 int sensorPin = A0;    // select the input pin for the potentiometer
+int sensorPin2 = A1;
 int sensorValue = 0;  // variable to store the value coming from the sensor
 
 void setup() {
@@ -103,20 +104,26 @@ ISR(TIMER1_COMPA_vect){//timer1 interrupt ~30Hz
 }
 
 void loop() {
-  //Serial << analogRead(sensorPin) << '\n';
+  //Serial << analogRead(sensorPin2) << '\n';
   //delay(10);
   uint32_t s_val = analogRead(sensorPin);
+  uint32_t s_val2 = analogRead(sensorPin2);
   //filter_buffer->add(filter_buffer, &s_val);
+  
   //this is left
-  if (s_val < 110) s_val = 110;
-  else if (s_val > 735) s_val = 735;
-  s_val = ((s_val - 110)*500)/625;
+  if (s_val <= 0) s_val = 0;
+  else if (s_val > 605) s_val = 605;
+  s_val = ((s_val - 0)*500)/605;
   s_val = 500 - s_val;
+  
   //this is right
-  /*if (s_val < 120) s_val = 120;
-  else if (s_val > 590) s_val = 590;
-  s_val = ((s_val - 120)*500)/470;*/
-  filter_buffer[filter_idx] = s_val;
+  if (s_val2 < 30) s_val2 = 30;
+  else if (s_val2 > 450) s_val2 = 450;
+  s_val2 = ((s_val2 - 30)*500)/420;
+  
+  filter_buffer[filter_idx] = (s_val + s_val2) / 2;
+  //filter_buffer[filter_idx] = s_val;
+
   filter_idx = (filter_idx + 1) % FS;
   if (filter_idx == 0) isFull = true;
   double avg;
