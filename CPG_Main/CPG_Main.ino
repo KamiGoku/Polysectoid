@@ -6,13 +6,13 @@
 
 
 #define scale 1000 //factor 10^3 doe millisecond
-#define FS 30 //size of filter buffer
+#define FS 15 //size of filter buffer
 
 template<class T> inline Print &operator <<(Print &obj, T arg) { obj.print(arg); return obj; } //To make the " Serial << output " syntax possible
 const double dt=0.002;
-/*uint16_t filter_buffer[FS] = {0};
+uint16_t filter_buffer[FS] = {0};
 int filter_idx = 0;
-bool isFull = false;*/
+bool isFull = false;
 RingBuf *buf1 = RingBuf_new(sizeof(double), 10);
 RingBuf *buf2 = RingBuf_new(sizeof(double), 10);
 double testarr[10] = {1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0};
@@ -40,11 +40,11 @@ int sensorValue = 0;  // variable to store the value coming from the sensor
 void setup() {
   // put your setup code here, to run once:
 
-  cli(); //disable interrupts 
+  //cli(); //disable interrupts 
   
   //first, set up interrupts
   //set timer0 interrupt at 2kHz
-  TCCR0A = 0;// set entire TCCR0A register to 0
+  /*TCCR0A = 0;// set entire TCCR0A register to 0
   TCCR0B = 0;// same for TCCR0B
   TCNT0  = 0;//initialize counter value to 0
   // set compare match register for 2khz increments
@@ -67,9 +67,9 @@ void setup() {
   // Set CS10 and CS12 bits for 1024 prescaler
   TCCR1B |= (1 << CS12) || (1 << CS10);  
   // enable timer compare interrupt
-  TIMSK1 |= (1 << OCIE1A);
+  TIMSK1 |= (1 << OCIE1A);*/
 
-  sei(); //enable interrupts
+  //sei(); //enable interrupts
   
   Serial.begin(9600);
   pinMode(sensorPin, INPUT);
@@ -103,9 +103,19 @@ ISR(TIMER1_COMPA_vect){//timer1 interrupt ~30Hz
 }
 
 void loop() {
-  /*Serial << analogRead(sensorPin) << '\n';
-  uint16_t s_val = analogRead(sensorPin);
+  //Serial << analogRead(sensorPin) << '\n';
+  //delay(10);
+  uint32_t s_val = analogRead(sensorPin);
   //filter_buffer->add(filter_buffer, &s_val);
+  //this is left
+  if (s_val < 110) s_val = 110;
+  else if (s_val > 735) s_val = 735;
+  s_val = ((s_val - 110)*500)/625;
+  s_val = 500 - s_val;
+  //this is right
+  /*if (s_val < 120) s_val = 120;
+  else if (s_val > 590) s_val = 590;
+  s_val = ((s_val - 120)*500)/470;*/
   filter_buffer[filter_idx] = s_val;
   filter_idx = (filter_idx + 1) % FS;
   if (filter_idx == 0) isFull = true;
@@ -118,11 +128,11 @@ void loop() {
     sum += (double) filter_buffer[i];
   }
   avg = sum/((double) current_idx);
-  Serial << ((uint16_t) avg) << '\n';
-  delay(10);*/
+  Serial << ((uint32_t) avg) << '\n';
+  delay(10);
 
   //Serial << micros() << '\n';
-  unsigned long us = micros();
+  //unsigned long us = micros();
   /*Serial << us << '\n';
   if (us - lastRead >= interval) {
     lastRead += interval;
@@ -135,13 +145,13 @@ void loop() {
     }
   }*/
   //Serial << 1;
-
+/*
       while (!buf2->isEmpty(buf2)) {
         static double d;
         buf2->pull(buf2, &d);
         Serial << d << '\n';
       }
-
+*/
   //delay(1000000);
 
   /*long start = micros();
