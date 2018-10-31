@@ -111,16 +111,20 @@ void loop() {
   //filter_buffer->add(filter_buffer, &s_val);
   
   //this is left
+  //calibrate data to 0-500
+  //min = 0, max = 605
   if (s_val <= 0) s_val = 0;
   else if (s_val > 605) s_val = 605;
   s_val = ((s_val - 0)*500)/605;
-  s_val = 500 - s_val;
+  s_val = 500 - s_val;//flip
   
   //this is right
+  //min = 30, max = 450
   if (s_val2 < 30) s_val2 = 30;
   else if (s_val2 > 450) s_val2 = 450;
   s_val2 = ((s_val2 - 30)*500)/420;
-  
+
+  //avg left and right
   filter_buffer[filter_idx] = (s_val + s_val2) / 2;
   //filter_buffer[filter_idx] = s_val;
 
