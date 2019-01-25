@@ -14,7 +14,7 @@ void setup() {
   pinMode(sensorPin2,INPUT);
   Serial.begin(9600);
 
-  cli(); //disable interrupts 
+  /*cli(); //disable interrupts 
   
   // Setup Timer 1 to trigger every 30 Hz
   TCCR1A = 0;// set entire TCCR1A register to 0
@@ -29,18 +29,18 @@ void setup() {
   // enable timer compare interrupt
   TIMSK1 |= (1 << OCIE1A);
 
-  sei(); //enable interrupts
+  sei(); //enable interrupts*/
 }
 
 // This ISR will send the packets stored in the
 // buffer to another arduino via the TX port
-ISR(TIMER1_COMPA_vect){
+/*ISR(TIMER1_COMPA_vect){
   if(!buf->isEmpty){
     char packet[5];
     buf->pull(buf,&packet);
     Serial.write(packet, 5);
   }
-}
+}*/
 
 
 // In here we are just filling up the buffer with packets
@@ -75,9 +75,10 @@ void loop() {
   adcVal = adcVal/10;
   packet[0] = (adcVal % 10) + 0x30;
 
-  if(!buf->isFull(buf)){
+  Serial.write(packet, 5);
+
+  /*if(!buf->isFull(buf)){
     buf->add(buf,&packet);
-  }
+  }*/
   
 }
-
