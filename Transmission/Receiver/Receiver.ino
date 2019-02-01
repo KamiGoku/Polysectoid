@@ -10,7 +10,7 @@ RingBuf *buf = RingBuf_new(5 * sizeof(char), 10); // Buffer that holds 10 packet
 void setup() {
   Serial.begin(9600);
 
-  cli(); //disable interrupts 
+  /*cli(); //disable interrupts 
   
   //Setup Timer 0 to trigger every 66 Hz
   TCCR0A = 0;// set entire TCCR0A register to 0
@@ -25,13 +25,13 @@ void setup() {
   // enable timer compare interrupt
   TIMSK0 |= (1 << OCIE0A);
 
-  sei(); //enable interrupts
+  sei(); //enable interrupts*/
 
 }
 
 // This ISR will receive packets sent from
 // another arduino and put them in the buffer
-ISR (TIMER0_COMPA_vect){
+/*ISR (TIMER0_COMPA_vect){
   // Read a packet if there is one
   if(Serial.available() >= 5){
     char packet[5];
@@ -41,7 +41,7 @@ ISR (TIMER0_COMPA_vect){
     }
   }
 
-}
+}*/
 
 // In here we are just outputting packets from the buffer
 void loop() {

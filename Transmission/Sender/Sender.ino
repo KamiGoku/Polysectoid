@@ -7,7 +7,7 @@
 
 int sensorPin1 = A0;                              // One of the sensors
 int sensorPin2 = A1;                              // The other sensor in the same segment   
-RingBuf *buf = RingBuf_new(5 * sizeof(char), 10); // Buffer that holds 10 packets
+//RingBuf *buf = RingBuf_new(5 * sizeof(char), 10); // Buffer that holds 10 packets
 
 void setup() {
   pinMode(sensorPin1,INPUT);
@@ -47,22 +47,25 @@ void setup() {
 void loop() {
 
   int s_val1 = analogRead(sensorPin1);
+  //Serial.println(s_val1);
   int s_val2 = analogRead(sensorPin2);
+  //Serial.println(s_val2);
 
   // Calibrating left sensor to 0-500
-  if (s_val1 <= 0) s_val1 = 0;
-  else if (s_val1 > 605) s_val1 = 605;
-  s_val1 = ((s_val1 - 0)*500)/605;
-  s_val1 = 500 - s_val1;//flip
+  /*if (s_val1 <= 800) s_val1 = 800;
+  else if (s_val1 > 1030) s_val1 = 1030;
+  s_val1 = ((s_val1 - 800)*500)/230;*/
+  s_val1 = 1030 - s_val1;//flip
 
 
   // Calibrating right sensor to 0-500
-  if (s_val2 < 30) s_val2 = 30;
-  else if (s_val2 > 450) s_val2 = 450;
-  s_val2 = ((s_val2 - 30)*500)/420;
+  /*if (s_val2 < 920) s_val2 = 920;
+  else if (s_val2 > 1030) s_val2 = 1030;
+  s_val2 = ((s_val2 - 920)*500)/110;*/
 
   // Average left and right vals
   int adcVal = (s_val1 + s_val2) / 2;
+  //Serial.println(adcVal);
 
   // Converting data into a packet and storing it in buffer
   char packet [5];
