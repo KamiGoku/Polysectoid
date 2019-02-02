@@ -43,12 +43,64 @@ void setup() {
 
 }*/
 
+/*void processIncomingPacket(char packet[5]) {
+  //Serial.write(packet, 5);
+  if (!buf->isFull(buf)){
+    buf->add(buf, &packet);
+  }
+}*/
+
+void processData() {
+  while(!buf->isEmpty(buf)){
+    char packet[5];
+    buf->pull(buf, &packet);
+    Serial.write(packet, 5);//just output it for now
+  }
+}
+
+void processIncomingByte(byte inByte){
+  static char input[5];
+  static uint32_t input_idx = 0;
+
+  switch(inByte) {
+    case '\n':
+      input[input_idx] = '\n';
+      buf->add(buf, &input);
+      processData();//just putting this here for now, maybe we'll call it somewhere else idk
+      input_idx = 0;
+      break;
+      
+    case '\r':
+      break;
+      
+    default:
+      if (input_idx < 4) {
+        input[input_idx++] = inByte;
+        break;
+      }
+  }
+  
+}
+
 // In here we are just outputting packets from the buffer
 void loop() {
-  if(!buf->isEmpty){
+  /*if(!buf->isEmpty){
     char packet[5];
     buf->pull(buf, &packet);
     Serial.write(packet, 5);
+  }*/
+
+  /*while (Serial.available() >= 5){
+    char packet[5];
+    Serial.readBytes(packet,5);
+    //Serial.write(packet, 5);
+    processIncomingPacket(packet);
+    processData();
+  }*/
+
+  while (Serial.available() > 0){
+    processIncomingByte(Serial.read());
+    //processData();
   }
 
 }

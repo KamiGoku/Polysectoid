@@ -9,6 +9,9 @@ int sensorPin1 = A0;                              // One of the sensors
 int sensorPin2 = A1;                              // The other sensor in the same segment   
 //RingBuf *buf = RingBuf_new(5 * sizeof(char), 10); // Buffer that holds 10 packets
 
+unsigned long prev_time = 0;
+unsigned long curr_time;
+
 void setup() {
   pinMode(sensorPin1,INPUT);
   pinMode(sensorPin2,INPUT);
