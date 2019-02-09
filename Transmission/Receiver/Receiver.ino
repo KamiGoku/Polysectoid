@@ -7,8 +7,16 @@
 
 RingBuf *buf = RingBuf_new(5 * sizeof(char), 10); // Buffer that holds 10 packets
 
+uint32_t startTime = 0;
+//int elapsedTime = 0;
+int random_bool = 0;
+
+SoftwareSerial serialOne(10, 11);
+
 void setup() {
   Serial.begin(9600);
+  while (!Serial);
+  serialOne.begin(9600);
 
   /*cli(); //disable interrupts 
   
@@ -52,14 +60,14 @@ void setup() {
 
 void processData() {
   while(!buf->isEmpty(buf)){
-    char packet[5];
+    char packet[7];
     buf->pull(buf, &packet);
-    Serial.write(packet, 5);//just output it for now
+    Serial.write(packet, 7);//just output it for now
   }
 }
 
 void processIncomingByte(byte inByte){
-  static char input[5];
+  static char input[7];
   static uint32_t input_idx = 0;
 
   switch(inByte) {
@@ -74,7 +82,7 @@ void processIncomingByte(byte inByte){
       break;
       
     default:
-      if (input_idx < 4) {
+      if (input_idx < 6) {
         input[input_idx++] = inByte;
         break;
       }
@@ -97,9 +105,22 @@ void loop() {
     processIncomingPacket(packet);
     processData();
   }*/
-
-  while (Serial.available() > 0){
-    processIncomingByte(Serial.read());
+  //while (Serial.available() > 0){
+  //Serial.println(serialOne.available());
+  if (random_bool == 0) {
+    startTime = micros();
+    random_bool = 1;
+  }
+  while (serialOne.available() > 0){
+    if (random_bool == 0) {
+      startTime = micros();
+    } else {
+      random_bool = 0;
+    }
+    //processIncomingByte(Serial.read());
+    processIncomingByte(serialOne.read());
+    uint32_t elapsedTime = micros() - startTime;
+    //Serial.println(elapsedTime);
     //processData();
   }
 
