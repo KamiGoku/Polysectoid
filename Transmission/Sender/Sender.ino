@@ -1,6 +1,6 @@
 #include <Pattern.h>
 #include <BasicLinearAlgebra.h>
-#include <SoftwareSerial.h>
+#include <NeoSWSerial.h>
 #include <math.h>
 #include <RingBuf.h>
 
@@ -11,7 +11,7 @@ int outVal = 0;
 int sub = 0;
 int add_this = 1;
 int my_idx = 0;
-double my_array[] = {0.1, 1.1, 1.2, 2.2, 3.5, 5.5, 8.5, 13.55, 21.4, 34.4, 55.5, 89.6, 144.2, 143.2, 131.2, 104.4, 88.5, 77.5, 53.6, 32.8, 17.8, 13.1, 7.1, 3.1};
+double my_array[] = {0.1, 0.11, 0.4, 0.2, 0.8, 0.88123, 0.1828939, 0.999, 0.76, 0.7719, 0.887, 0.65, 0.44, 0.5556, 0.21, 0.2, 0.11, 0.6, 0.33, 0.22, 0.88, 0.66, 0.55, 0.6613};
 #endif
 
 int sensorPin1 = A0;                              // One of the sensors
@@ -21,7 +21,16 @@ int sensorPin2 = A1;                              // The other sensor in the sam
 unsigned long prev_time = 0;
 unsigned long curr_time;
 
-SoftwareSerial serialOne(10, 11);
+/*typedef union {
+    double f;
+    struct {
+      uint32_t mantissa : 23;
+      uint32_t exponent : 8;
+      uint32_t sign : 1;
+    } parts;
+  } float_cast;*/
+
+NeoSWSerial serialOne(10, 11);
 
 void setup() {
   pinMode(sensorPin1,INPUT);
@@ -32,36 +41,31 @@ void setup() {
 
   /*cli(); //disable interrupts 
   
-  // Setup Timer 1 to trigger every 30 Hz
-  TCCR1A = 0;// set entire TCCR1A register to 0
-  TCCR1B = 0;// same for TCCR1B
-  TCNT1  = 0;//initialize counter value to 0
-  // set compare match register for 1hz increments
-  OCR1A = 520;// = (16*10^6) / (30*1024) - 1 (must be <65536)  520
+  //set timer2 interrupt at 1kHz
+  TCCR2A = 0;// set entire TCCR2A register to 0
+  TCCR2B = 0;// same for TCCR2B
+  TCNT2  = 0;//initialize counter value to 0
+  // set compare match register for 1khz increments
+  OCR2A = 249;// = (16*10^6) / (1000*64) - 1 (must be <256)
   // turn on CTC mode
-  TCCR1B |= (1 << WGM12);
-  // Set CS10 and CS12 bits for 1024 prescaler
-  TCCR1B |= (1 << CS12) || (1 << CS10);  
+  TCCR2A |= (1 << WGM21);
+  // Set CS22 bit for 64 prescaler
+  TCCR2B |= (1 << CS22); 
   // enable timer compare interrupt
-  TIMSK1 |= (1 << OCIE1A);
+  TIMSK2 |= (1 << OCIE2A);
 
   sei(); //enable interrupts*/
 }
 
-// This ISR will send the packets stored in the
-// buffer to another arduino via the TX port
-/*ISR(TIMER1_COMPA_vect){
-  if(!buf->isEmpty){
-    char packet[5];
-    buf->pull(buf,&packet);
-    Serial.write(packet, 5);
-  }
+// This ISR will gather sensor data
+/*ISR(TIMER2_COMPA_vect){
+  //might put analogReads in here later
 }*/
 
 
 // In here we are just filling up the buffer with packets
 void loop() {
-  uint32_t startTime = micros();
+  //uint32_t startTime = micros();
 
   int s_val1 = analogRead(sensorPin1);
   //Serial.println(s_val1);
@@ -81,8 +85,8 @@ void loop() {
   s_val2 = ((s_val2 - 920)*500)/110;*/
 
   // Average left and right vals
-  //int adcVal = (s_val1 + s_val2) / 2;
-  int adcVal = s_val2;
+  int adcVal = s_val1;
+  /*int adcVal = s_val2;
   //Serial.println(adcVal);
 
   #ifdef NO_BOARD
@@ -103,7 +107,7 @@ void loop() {
     outVal = outVal + add_this;
     add_this++;
   }*/
-  adcVal = my_array[my_idx]*add_this;
+  /*adcVal = my_array[my_idx]*add_this;
   my_idx = (my_idx+1)%24;
   if (my_idx == 0) {
     add_this = (add_this+1)%4;
@@ -120,14 +124,27 @@ void loop() {
   packet[1] = (adcVal % 10) + 0x30;
   adcVal = adcVal/10;
   packet[0] = (adcVal % 10) + 0x30;*/
-  char packet[7];
-  dtostrf(my_array[my_idx], 6, 2, packet);
-  my_idx = (my_idx+1)%24;
-  packet[6] = '\n';
 
-  serialOne.write(packet, 7);
-  Serial.write(packet, 7);
-  uint32_t elapsedTime = micros() - startTime;
+  //double val = 0.1234567233;
+  
+  char packet[15];
+  dtostrf(my_array[my_idx], 13, 11, packet+1);
+  my_idx = (my_idx+1)%24;
+  packet[0] = '\t';
+  packet[13] = '\n';
+
+  /*float_cast d1 = {.f = 3.14159};
+  Serial.println(sizeof(d1));
+  Serial.println(d1.parts.sign, HEX);
+  Serial.println(d1.parts.exponent, HEX);
+  Serial.println(d1.parts.mantissa, HEX);
+  while(1);*/
+
+  
+  
+  serialOne.write(packet, 15);
+  //Serial.write(packet, 14);
+  //uint32_t elapsedTime = micros() - startTime;
   //Serial.println(elapsedTime);
 
   /*if(!buf->isFull(buf)){
