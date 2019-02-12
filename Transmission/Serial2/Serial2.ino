@@ -12,6 +12,9 @@ NeoSWSerial serialTwo(4, 5); //RX, TX for third arduino
 RingBuf *buf = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // Buffer that holds 10 packets
 RingBuf *buf2 = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // 2nd buffer for third arduino
 
+int read_flag = 0;
+int read_flag2 = 0;
+
 void setup() {
   // put your setup code here, to run once:
 
@@ -67,13 +70,26 @@ void processIncomingByte(byte inByte, int which_buf){
   switch(inByte) {
     case '\n':
       if (which_buf == 1) {
+        if (input_idx != PACKET_SIZE-1) {
+          input_idx = 0;
+          read_flag = 0;
+          break;
+        }
         input[input_idx] = '\n';
+        //Serial.write(input, PACKET_SIZE);
         buf->add(buf, &input);
         input_idx = 0;
+        read_flag = 0;
       } else {
+        if (input_idx2 != PACKET_SIZE-1) {
+          input_idx2 = 0;
+          read_flag2 = 0;
+          break;
+        }
         input2[input_idx2] = '\n';
         buf2->add(buf2, &input2);
         input_idx2 = 0;
+        read_flag2 = 0;
       }
       //processData();//just putting this here for now, maybe we'll call it somewhere else idk
       break;
@@ -134,24 +150,43 @@ void processIncomingByte(byte inByte, int which_buf){
 void loop() {
   // put your main code here, to run repeatedly:
 
+  //Serial.println(serialOne.available());
   while (serialOne.available() > 0){
-    processIncomingByte(serialOne.read(), 1);
+    //processIncomingByte(serialOne.read(), 1);
+    Serial.write(serialOne.read());
+    
+    /*char c = serialOne.read();
+    if (read_flag == 1){
+      processIncomingByte(c, 1);
+    }
+    if (c == '\t'){
+      read_flag = 1;
+    }*/
   }
 
-  char packet[PACKET_SIZE];
+  /*char packet[PACKET_SIZE];
   if (!buf->isEmpty(buf)) {
     buf->pull(buf, &packet);
     serialTwo.write(packet, PACKET_SIZE);//just output it for now
   }
 
   while (serialTwo.available() > 0){
-    processIncomingByte(serialTwo.read(), 2);
-  }
+    //processIncomingByte(serialTwo.read(), 2);
+    char c = serialTwo.read();
+    if (read_flag2 == 1){
+      processIncomingByte(c,2);
+    }
+    if (c == '\t'){
+      read_flag2 = 1;
+    }
+  }*/
 
-  char packet2[PACKET_SIZE];
-  if (!buf2->isEmpty(buf2)) {
-    buf2->pull(buf2, &packet2);
-    serialOne.write(packet2, PACKET_SIZE);
-  }
+  char packet2[PACKET_SIZE] = {0};
+  packet2[0]='\t';
+  packet2[14]='\n';
+  //if (!buf2->isEmpty(buf2)) {
+    //buf2->pull(buf2, &packet2);
+//    /serialOne.write(packet2, PACKET_SIZE);
+  //}
 
 }

@@ -11,6 +11,8 @@ NeoSWSerial serialOne(4, 5); //RX, TX for third arduino
 double my_array[10] = {0.5, 0.6, 0.7, 0.8, 0.9, 0.955, 0.8, 0.7, 0.6, 0.5};
 uint32_t my_idx = 0;
 
+int read_flag = 0;
+
 RingBuf *buf = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // Buffer that holds 10 packets
 
 void setup() {
@@ -20,7 +22,7 @@ void setup() {
   while (!Serial);
   serialOne.begin(9600);
 
-  cli(); //disable interrupts 
+  /*cli(); //disable interrupts 
   
   //set timer2 interrupt at 1kHz
   //Timer2 interrupt is for transmitting 
@@ -50,7 +52,7 @@ void setup() {
   // enable timer compare interrupt
   TIMSK0 |= (1 << OCIE0A);
 
-  sei(); //enable interrupts
+  sei(); //enable interrupts*/
 
 }
 
@@ -68,13 +70,22 @@ void processIncomingByte(byte inByte){
 
   switch(inByte) {
     case '\n':
+      if (input_idx != PACKET_SIZE-1){
+        input_idx=0;
+        read_flag=0;
+        break;
+      }
       input[input_idx] = '\n';
       buf->add(buf, &input);
       processData();//just putting this here for now, maybe we'll call it somewhere else idk
       input_idx = 0;
+      read_flag=0;
       break;
       
     case '\r':
+      break;
+
+    case '\t':
       break;
       
     default:
@@ -89,7 +100,7 @@ void processIncomingByte(byte inByte){
 
 // This ISR will send the packets 
 // to another arduino via the TX port
-ISR(TIMER2_COMPA_vect){
+/*ISR(TIMER2_COMPA_vect){
   char packet[14];
   dtostrf(my_array[my_idx], 13, 11, packet);
   my_idx = (my_idx+1)%10;
@@ -105,11 +116,30 @@ ISR (TIMER0_COMPA_vect){
   while (serialOne.available() > 0){
     processIncomingByte(serialOne.read());
   }
-}
+}*/
 
 
 
 void loop() {
   // put your main code here, to run repeatedly:
+
+  char packet[15];
+  dtostrf(my_array[my_idx], 13, 11, packet+1);
+  my_idx = (my_idx+1)%10;
+  packet[0] = '\t';
+  packet[14] = '\n';
+
+  serialOne.write(packet, 15);
+
+  while (serialOne.available() > 0){
+    //processIncomingByte(serialOne.read());
+    char c = serialOne.read();
+    if (read_flag == 1){
+      processIncomingByte(c);
+    }
+    if (c == '\t'){
+      read_flag = 1;
+    }
+  }
 
 }

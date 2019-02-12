@@ -12,6 +12,7 @@ RingBuf *buf = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // Buffer that holds
 
 double my_array[10] = {0.11, 0.222, 0.33, 0.444, 0.55, 0.555, 0.444, 0.33, 0.222, 0.11};
 uint32_t my_idx = 0;
+int read_flag = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -67,10 +68,16 @@ void processIncomingByte(byte inByte){
 
   switch(inByte) {
     case '\n':
+      if (input_idx != PACKET_SIZE-1) {
+        input_idx = 0;
+        read_flag = 0;
+        break;
+      }
       input[input_idx] = '\n';
       buf->add(buf, &input);
       processData();//just putting this here for now, maybe we'll call it somewhere else idk
       input_idx = 0;
+      read_flag = 0;
       break;
       
     case '\r':
@@ -118,12 +125,22 @@ void loop() {
   dtostrf(my_array[my_idx], 13, 11, packet+1);
   my_idx = (my_idx+1)%10;
   packet[0] = '\t';
-  packet[15] = '\n';
+  packet[14] = '\n';
 
+  Serial.write(packet,15);
   serialOne.write(packet, 15);
+  while(1);
+  //Serial.write(packet, 14);
 
   while (serialOne.available() > 0){
-    processIncomingByte(serialOne.read());
+    //processIncomingByte(serialOne.read());
+    char c = serialOne.read();
+    if (read_flag == 1) {
+      processIncomingByte(c);
+    }
+    if (c == '\t'){
+      read_flag = 1;
+    }
   }
 
   
