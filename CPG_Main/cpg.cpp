@@ -9,7 +9,7 @@ public:
 	double weights [SIZE];		// Weights for neighboring arduinos (0-4 -> vertical connection) (5,6 -> horizontal connections)
 	double int_freq;		// Intrinsic Frequency
 	double bias [SIZE];		// Bias for neighboring arduinos
-	double tau;				// Frequency parameter
+	double tau;			// Frequency parameter
 	double phase;			// Current phase of this actuator 
 
 	Actuator(double Weights[], double Int_freq, double Bias [], double Tau) {
