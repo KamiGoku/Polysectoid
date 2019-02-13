@@ -8,6 +8,12 @@
 #define scale 1000 //factor 10^3 doe millisecond
 #define FS 15 //size of filter buffer
 
+class main {
+  public:
+
+  
+};
+
 template<class T> inline Print &operator <<(Print &obj, T arg) { obj.print(arg); return obj; } //To make the " Serial << output " syntax possible
 const double dt=0.002;
 uint16_t filter_buffer[FS] = {0};
