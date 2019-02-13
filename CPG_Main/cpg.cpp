@@ -27,12 +27,12 @@ public:
 		double sum = 0.0;
 		
 		for (int i = 0; i < SIZE; i++) {
-			sum += (weights[i] * sin(neighbor_phases[i] +  bias[i] - phase));
+			sum += (weights[i] * sin((neighbor_phases[i] - phase)*2*PI -  bias[i]));
 		}
 
-		sum = ((2 * PI) + sum) / tau;
+		sum = ((2 * PI * int_freq) + sum) / (2 * PI * tau);
 		
-		double modVal = 2 * PI;
+		double modVal = 1;
 		phase = modf(sum + phase, &modVal);		
 
 		return phase;
