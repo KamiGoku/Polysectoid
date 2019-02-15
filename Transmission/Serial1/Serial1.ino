@@ -1,12 +1,13 @@
 #include <Pattern.h>
 #include <BasicLinearAlgebra.h>
 #include <NeoSWSerial.h>
+#include <AltSoftSerial.h>
 #include <math.h>
 #include <RingBuf.h>
 
 #define PACKET_SIZE 14
 
-NeoSWSerial serialOne(2, 3); //RX, TX
+NeoSWSerial serialOne(2,3); //RX, TX
 
 RingBuf *buf = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // Buffer that holds 10 packets
 
@@ -20,9 +21,9 @@ void setup() {
   while (!Serial);
   serialOne.begin(9600);
 
-  cli(); //disable interrupts 
+  /*cli(); //disable interrupts 
   
-  /*//set timer2 interrupt at 1kHz
+  //set timer2 interrupt at 1kHz
   //Timer2 interrupt is for transmitting 
   TCCR2A = 0;// set entire TCCR2A register to 0
   TCCR2B = 0;// same for TCCR2B
@@ -96,26 +97,6 @@ void processIncomingByte(byte inByte){
   
 }
 
-// This ISR will send the packets 
-// to another arduino via the TX port
-/*ISR(TIMER2_COMPA_vect){
-  char packet[14];
-  dtostrf(my_array[my_idx], 13, 11, packet);
-  my_idx = (my_idx+1)%10;
-  packet[14] = '\n';
-
-  serialOne.write(packet, 14);
-}*/
-
-
-// This ISR will receive packets sent from
-// another arduino and put them in the buffer
-/*ISR (TIMER0_COMPA_vect){
-  while (serialOne.available() > 0){
-    processIncomingByte(serialOne.read());
-  }
-}*/
-
 
 
 void loop() {
@@ -127,13 +108,10 @@ void loop() {
   packet[0] = '\t';
   packet[14] = '\n';
 
-  Serial.write(packet,15);
   serialOne.write(packet, 15);
-  while(1);
-  //Serial.write(packet, 14);
 
+  //Serial.println(serialOne.available());
   while (serialOne.available() > 0){
-    //processIncomingByte(serialOne.read());
     char c = serialOne.read();
     if (read_flag == 1) {
       processIncomingByte(c);

@@ -1,27 +1,29 @@
 #include <Pattern.h>
 #include <BasicLinearAlgebra.h>
 #include <NeoSWSerial.h>
+#include <AltSoftSerial.h>
 #include <math.h>
 #include <RingBuf.h>
 
 #define PACKET_SIZE 14
 
 NeoSWSerial serialOne(2, 3); //RX, TX
-NeoSWSerial serialTwo(4, 5); //RX, TX for third arduino
+AltSoftSerial serialTwo; //pins 8,9
 
 RingBuf *buf = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // Buffer that holds 10 packets
 RingBuf *buf2 = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // 2nd buffer for third arduino
 
 int read_flag = 0;
 int read_flag2 = 0;
+int muh_bool = 0;
 
 void setup() {
   // put your setup code here, to run once:
 
   Serial.begin(9600);
   while (!Serial);
-  serialOne.begin(9600);
   serialTwo.begin(9600);
+  serialOne.begin(9600);
 
   /*cli(); //disable interrupts 
   
@@ -57,9 +59,29 @@ void setup() {
 
 }
 
-/*void processData() {
+void processData(int which_serial) {
+  if (which_serial == 2) {
+    while(!buf->isEmpty(buf)){
+      char packet[15];
+      char *packet_ptr = packet+1;
+      buf->pull(buf, packet_ptr);
+      packet[0] = '\t';
+      serialTwo.write(packet, 15);
+      //Serial.write(packet, PACKET_SIZE+1);
+    }
+  } else if (which_serial == 1) {
+    while(!buf2->isEmpty(buf2)){
+      char packet[15];
+      char *packet_ptr = packet+1;
+      buf2->pull(buf2, packet_ptr);
+      packet[0] = '\t';
+      serialOne.write(packet, 15);
+      //Serial.write(packet, 15);
+    }
+    return;
+  }
   return;
-}*/
+}
 
 void processIncomingByte(byte inByte, int which_buf){
   static char input[PACKET_SIZE];
@@ -80,6 +102,8 @@ void processIncomingByte(byte inByte, int which_buf){
         buf->add(buf, &input);
         input_idx = 0;
         read_flag = 0;
+        processData(2);//just putting this here for now, maybe we'll call it somewhere else idk
+        break;
       } else {
         if (input_idx2 != PACKET_SIZE-1) {
           input_idx2 = 0;
@@ -90,8 +114,9 @@ void processIncomingByte(byte inByte, int which_buf){
         buf2->add(buf2, &input2);
         input_idx2 = 0;
         read_flag2 = 0;
+        processData(1);//just putting this here for now, maybe we'll call it somewhere else idk
+        break;
       }
-      //processData();//just putting this here for now, maybe we'll call it somewhere else idk
       break;
       
     case '\r':
@@ -117,76 +142,53 @@ void processIncomingByte(byte inByte, int which_buf){
   }
 }
 
-// This ISR will send the packets 
-// to another arduino via the TX port
-/*ISR(TIMER2_COMPA_vect){
-  char packet[PACKET_SIZE];
-  if (!buf->isEmpty(buf)) {
-    buf->pull(buf, &packet);
-    serialTwo.write(packet, PACKET_SIZE);//just output it for now
-  }
-
-  char packet2[PACKET_SIZE];
-  if (!buf2->isEmpty(buf2)) {
-    buf2->pull(buf2, &packet2);
-    serialOne.write(packet2, PACKET_SIZE);
-  }
-  
-
-  //Serial.write(packet, 15);
-}*/
-
-// This ISR will receive packets sent from
-// another arduino and put them in the buffer
-/*ISR (TIMER0_COMPA_vect){
-  while (serialOne.available() > 0){
-    processIncomingByte(serialOne.read(), 1);
-  }
-  while (serialTwo.available() > 0){
-    processIncomingByte(serialTwo.read(), 2);
-  }
-}*/
-
 void loop() {
   // put your main code here, to run repeatedly:
 
   //Serial.println(serialOne.available());
   while (serialOne.available() > 0){
-    //processIncomingByte(serialOne.read(), 1);
-    Serial.write(serialOne.read());
-    
-    /*char c = serialOne.read();
+    char c = serialOne.read();
     if (read_flag == 1){
       processIncomingByte(c, 1);
     }
     if (c == '\t'){
       read_flag = 1;
-    }*/
+    }
   }
+
+  /*//some 1-on-1 testing
+  char my_packet[15];
+  my_packet[0] = '\t';
+  if (muh_bool == 0) {
+    dtostrf(0.222, 13, 11, my_packet+1);
+    muh_bool = 1;
+  } else {
+    dtostrf(0.333, 13, 11, my_packet+1);
+    muh_bool = 0;
+  }
+  my_packet[14] = '\n';
+  serialOne.write(my_packet, 15);*/
 
   /*char packet[PACKET_SIZE];
   if (!buf->isEmpty(buf)) {
     buf->pull(buf, &packet);
     serialTwo.write(packet, PACKET_SIZE);//just output it for now
-  }
+  }*/
 
   while (serialTwo.available() > 0){
-    //processIncomingByte(serialTwo.read(), 2);
     char c = serialTwo.read();
     if (read_flag2 == 1){
-      processIncomingByte(c,2);
+      processIncomingByte(c, 2);
     }
     if (c == '\t'){
       read_flag2 = 1;
     }
-  }*/
+  }
 
-  char packet2[PACKET_SIZE] = {0};
-  packet2[0]='\t';
-  packet2[14]='\n';
+  /*char packet2[PACKET_SIZE];
   //if (!buf2->isEmpty(buf2)) {
     //buf2->pull(buf2, &packet2);
 //    /serialOne.write(packet2, PACKET_SIZE);
-  //}
+  //}*/
 
 }

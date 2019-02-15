@@ -1,14 +1,15 @@
 #include <Pattern.h>
 #include <BasicLinearAlgebra.h>
 #include <NeoSWSerial.h>
+#include <AltSoftSerial.h>
 #include <math.h>
 #include <RingBuf.h>
 
 #define PACKET_SIZE 14
 
-NeoSWSerial serialOne(4, 5); //RX, TX for third arduino
+AltSoftSerial serialTwo; //pins 8,9
 
-double my_array[10] = {0.5, 0.6, 0.7, 0.8, 0.9, 0.955, 0.8, 0.7, 0.6, 0.5};
+double my_array[10] = {0.555, 0.666, 0.777, 0.888, 0.999, 0.999, 0.888, 0.777, 0.666, 0.555};
 uint32_t my_idx = 0;
 
 int read_flag = 0;
@@ -20,7 +21,7 @@ void setup() {
 
   Serial.begin(9600);
   while (!Serial);
-  serialOne.begin(9600);
+  serialTwo.begin(9600);
 
   /*cli(); //disable interrupts 
   
@@ -98,28 +99,6 @@ void processIncomingByte(byte inByte){
   
 }
 
-// This ISR will send the packets 
-// to another arduino via the TX port
-/*ISR(TIMER2_COMPA_vect){
-  char packet[14];
-  dtostrf(my_array[my_idx], 13, 11, packet);
-  my_idx = (my_idx+1)%10;
-  packet[14] = '\n';
-
-  serialOne.write(packet, 14);
-}
-
-
-// This ISR will receive packets sent from
-// another arduino and put them in the buffer
-ISR (TIMER0_COMPA_vect){
-  while (serialOne.available() > 0){
-    processIncomingByte(serialOne.read());
-  }
-}*/
-
-
-
 void loop() {
   // put your main code here, to run repeatedly:
 
@@ -129,11 +108,10 @@ void loop() {
   packet[0] = '\t';
   packet[14] = '\n';
 
-  serialOne.write(packet, 15);
-
-  while (serialOne.available() > 0){
-    //processIncomingByte(serialOne.read());
-    char c = serialOne.read();
+  serialTwo.write(packet, 15);
+  
+  while (serialTwo.available() > 0){
+    char c = serialTwo.read();
     if (read_flag == 1){
       processIncomingByte(c);
     }
