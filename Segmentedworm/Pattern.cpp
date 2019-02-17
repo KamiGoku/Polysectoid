@@ -31,7 +31,7 @@ Pattern::Pattern(){
 	rightCross[1]=0;
 }
 
-void Pattern::newChainPattern(int location, bool front, double weight[]){
+void Pattern::newChainPattern(int location, bool front, float weight[]){
 	if(location == 0){//left parapodia
 		if(front){//left front
 			for(int i = 0; i < LEFT_FRONT; i++){
@@ -72,7 +72,7 @@ void Pattern::newChainPattern(int location, bool front, double weight[]){
 	}
 }
 
-void Pattern::newCrossPattern(int location, double weight[]){
+void Pattern::newCrossPattern(int location, float weight[]){
 	if(location == 0){//left
 		leftCross[0]=weight[0];
 		leftCross[1]=weight[1];
