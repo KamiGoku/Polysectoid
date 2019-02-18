@@ -25,6 +25,9 @@ public:
 
 
 			for (int i = k*5; i < (k+1)*5; i++) {
+				weights[i][5] = pattern.cross_weight[k][0];
+				weights[i][6] = pattern.cross_weight[k][1];
+
 				for (int j = 0; j < 5; j++) {
 					if (i == 0 && j < 3) {
 						weights[i][j] = row[j + 2];
