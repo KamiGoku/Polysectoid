@@ -16,12 +16,19 @@ public:
 		
 		//Weight calculation
 		for (int k = 0; k < 3; k++) {
-			float row[NUM];
-			row[0] = pattern.weight_pat_after[k][0];
-			row[1] = pattern.weight_pat_after[k][1];
-			row[2] = 0;
-			row[3] = pattern.weight_pat_before[k][0];
-			row[4] = pattern.weight_pat_before[k][1];
+			float weight_row[NUM], bias_row[NUM];
+			weight_row[0] = pattern.weight_pat_after[k][0];
+			weight_row[1] = pattern.weight_pat_after[k][1];
+			weight_row[2] = 0;
+			weight_row[3] = pattern.weight_pat_before[k][0];
+			weight_row[4] = pattern.weight_pat_before[k][1];
+
+			bias_row[0] = -1*pattern.bias_pat_after[k][0] - pattern.bias_pat_after[k][1];
+			bias_row[1] = -1*pattern.bias_pat_after[k][0];
+			bias_row[2] = 0;
+			bias_row[3] = pattern.bias_pat_before[k][0];
+			bias_row[4] = pattern.bias_pat_before[k][0] + pattern.bias_pat_before[k][1];
+			
 
 
 			for (int i = k*5; i < (k+1)*5; i++) {
@@ -30,30 +37,29 @@ public:
 
 				for (int j = 0; j < 5; j++) {
 					if (i == 0 && j < 3) {
-						weights[i][j] = row[j + 2];
+						weights[i][j] = weight_row[j + 2];
 					}
 					else if (i == 1 && j < 4) {
-						weights[i][j] = row[j + 1];
+						weights[i][j] = weight_row[j + 1];
 					}
 					else if (i == 2 && j < 5) {
-						weights[i][j] = row[j];
+						weights[i][j] = weight_row[j];
 					}
 					else if (i == 3 && j > 0) {
-						weights[i][j] = row[j - 1];
+						weights[i][j] = weight_row[j - 1];
 					}
 					else if (i == 4 && j > 1) {
-						weights[i][j] = row[j - 2];
+						weights[i][j] = weight_row[j - 2];
 					}
 				}
 			}
 		}
 
-		
-
+		for (int i = 0; i < 15; i++) {
+			int_freq[i] = pattern.int_freq[i];
+		}
 
 	}
-
-
 };
 
 int main() {
