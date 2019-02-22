@@ -7,9 +7,11 @@
 
 #define PACKET_SIZE 14
 
-AltSoftSerial serialTwo; //pins 8,9
+//NeoSWSerial serialOne(2,3); //RX, TX, will receive on pin2 RX
+HardwareSerial &serialOne = Serial;
+AltSoftSerial serialTwo; //pins 8,9, will send from pin9 TX
 
-double my_array[10] = {0.555, 0.666, 0.777, 0.888, 0.999, 0.999, 0.888, 0.777, 0.666, 0.555};
+double my_array[10] = {0.555, 0.666, 0.777, 0.888, 0.999, 0.999, 0.888, 0.777, 0.36, 0.555};
 uint32_t my_idx = 0;
 
 int read_flag = 0;
@@ -21,6 +23,7 @@ void setup() {
 
   Serial.begin(9600);
   while (!Serial);
+  //serialOne.begin(9600);
   serialTwo.begin(9600);
 
   /*cli(); //disable interrupts 
@@ -109,7 +112,8 @@ void loop() {
   packet[14] = '\n';
 
   serialTwo.write(packet, 15);
-  
+
+  //Serial.println(serialTwo.available());
   while (serialTwo.available() > 0){
     char c = serialTwo.read();
     if (read_flag == 1){
@@ -119,5 +123,6 @@ void loop() {
       read_flag = 1;
     }
   }
+
 
 }

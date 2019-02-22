@@ -7,8 +7,9 @@
 
 #define PACKET_SIZE 14
 
-NeoSWSerial serialOne(2, 3); //RX, TX
-AltSoftSerial serialTwo; //pins 8,9
+//NeoSWSerial serialOne(2, 3); //RX, TX, will receive on pin2 RX and send from pin3 TX
+HardwareSerial &serialOne = Serial;
+AltSoftSerial serialTwo; //pins 8,9, will receive on pin8 RX and send from pin9 TX
 
 RingBuf *buf = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // Buffer that holds 10 packets
 RingBuf *buf2 = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // 2nd buffer for third arduino
@@ -22,8 +23,8 @@ void setup() {
 
   Serial.begin(9600);
   while (!Serial);
+  //serialOne.begin(9600);
   serialTwo.begin(9600);
-  serialOne.begin(9600);
 
   /*cli(); //disable interrupts 
   
@@ -146,28 +147,20 @@ void loop() {
   // put your main code here, to run repeatedly:
 
   //Serial.println(serialOne.available());
-  while (serialOne.available() > 0){
-    char c = serialOne.read();
+  //write some protocol so that we only read one packet per loop so that serialOne doesn't monopolize the loop(?)
+  
+  while (serialTwo.available() > 0){
+    char c = serialTwo.read();
     if (read_flag == 1){
       processIncomingByte(c, 1);
+      if (c == '\n'){
+        break;
+      }
     }
     if (c == '\t'){
       read_flag = 1;
     }
   }
-
-  /*//some 1-on-1 testing
-  char my_packet[15];
-  my_packet[0] = '\t';
-  if (muh_bool == 0) {
-    dtostrf(0.222, 13, 11, my_packet+1);
-    muh_bool = 1;
-  } else {
-    dtostrf(0.333, 13, 11, my_packet+1);
-    muh_bool = 0;
-  }
-  my_packet[14] = '\n';
-  serialOne.write(my_packet, 15);*/
 
   /*char packet[PACKET_SIZE];
   if (!buf->isEmpty(buf)) {
@@ -175,10 +168,15 @@ void loop() {
     serialTwo.write(packet, PACKET_SIZE);//just output it for now
   }*/
 
-  while (serialTwo.available() > 0){
-    char c = serialTwo.read();
+  //serialTwo.listen();
+
+  while (serialOne.available() > 0){
+    char c = serialOne.read();
     if (read_flag2 == 1){
       processIncomingByte(c, 2);
+      if (c == '\n'){
+        break;
+      }
     }
     if (c == '\t'){
       read_flag2 = 1;

@@ -7,11 +7,13 @@
 
 #define PACKET_SIZE 14
 
-NeoSWSerial serialOne(2,3); //RX, TX
+//NeoSWSerial serialOne(2,3); //RX, TX, will send from pin3 TX
+HardwareSerial &serialOne = Serial;
+AltSoftSerial serialTwo; //will receive on pin8 RX
 
 RingBuf *buf = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // Buffer that holds 10 packets
 
-double my_array[10] = {0.11, 0.222, 0.33, 0.444, 0.55, 0.555, 0.444, 0.33, 0.222, 0.11};
+double my_array[10] = {0.11, 0.222, 0.33, 0.444, 0.55, 0.555, 0.444, 0.33, 0.52, 0.11};
 uint32_t my_idx = 0;
 int read_flag = 0;
 
@@ -19,7 +21,8 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
   while (!Serial);
-  serialOne.begin(9600);
+  //serialOne.begin(9600);
+  serialTwo.begin(9600);
 
   /*cli(); //disable interrupts 
   
@@ -108,7 +111,7 @@ void loop() {
   packet[0] = '\t';
   packet[14] = '\n';
 
-  serialOne.write(packet, 15);
+  serialTwo.write(packet, 15);
 
   //Serial.println(serialOne.available());
   while (serialOne.available() > 0){
