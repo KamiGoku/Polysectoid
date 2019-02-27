@@ -6,34 +6,34 @@
 
 class Brain {
 public:
-	float weights[NUM * 3][SIZE];			// Weights for neighboring arduinos
+	float weights[NUM * 3][SIZE];		// Weights for neighboring arduinos
 	float int_freq [NUM * 3];				// Intrinsic Frequency
-	float bias[NUM * 3][SIZE];				// Bias for neighboring arduinos
-	float tau;								// Frequency parameter
+	float bias[NUM * 3][SIZE];			// Bias for neighboring arduinos
+	float tau;								      // Frequency parameter
 
-	Brain(Pattern* pattern, float Tau) {
+	Brain(Pattern pattern, float Tau) {
 		tau = Tau;
 		
 		//Weight calculation
 		for (int k = 0; k < 3; k++) {
 			float weight_row[NUM], bias_row[NUM];
-			weight_row[0] = pattern->weight_pat_after[k][0];
-			weight_row[1] = pattern->weight_pat_after[k][1];
+			weight_row[0] = pattern.weight_pat_after[k][0];
+			weight_row[1] = pattern.weight_pat_after[k][1];
 			weight_row[2] = 0;
-			weight_row[3] = pattern->weight_pat_before[k][0];
-			weight_row[4] = pattern->weight_pat_before[k][1];
+			weight_row[3] = pattern.weight_pat_before[k][0];
+			weight_row[4] = pattern.weight_pat_before[k][1];
 
-			bias_row[0] = -1*pattern->bias_pat_after[k][0] - pattern->bias_pat_after[k][1];
-			bias_row[1] = -1*pattern->bias_pat_after[k][0];
+			bias_row[0] = -1*pattern.bias_pat_after[k][0] - pattern.bias_pat_after[k][1];
+			bias_row[1] = -1*pattern.bias_pat_after[k][0];
 			bias_row[2] = 0;
-			bias_row[3] = pattern->bias_pat_before[k][0];
-			bias_row[4] = pattern->bias_pat_before[k][0] + pattern->bias_pat_before[k][1];
+			bias_row[3] = pattern.bias_pat_before[k][0];
+			bias_row[4] = pattern.bias_pat_before[k][0] + pattern.bias_pat_before[k][1];
 			
 
 
 			for (int i = k*5; i < (k+1)*5; i++) {
-				weights[i][5] = pattern->cross_weight[k][0];
-				weights[i][6] = pattern->cross_weight[k][1];
+				weights[i][5] = pattern.cross_weight[k][0];
+				weights[i][6] = pattern.cross_weight[k][1];
 
 				for (int j = 0; j < 5; j++) {
 					if (i == 0 && j < 3) {
@@ -56,7 +56,7 @@ public:
 		}
 
 		for (int i = 0; i < 15; i++) {
-			int_freq[i] = pattern->int_freq[i];
+			int_freq[i] = pattern.int_freq[i];
 		}
 
 	}

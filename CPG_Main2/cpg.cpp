@@ -18,10 +18,10 @@ public:
 	Actuator(float Weights[], float Int_freq, float Bias[], float Tau, float Phase) {
 		int_freq = Int_freq;
 		tau = Tau;
-    //phase = Phase;
+    phase = Phase;
 		for (int i = 0; i < SIZE; i++) {
-			//weights[i] = Weights[i];
-			//bias[i] = Bias[i];
+			weights[i] = Weights[i];
+			bias[i] = Bias[i];
 		}
 	}
  Actuator(){}
