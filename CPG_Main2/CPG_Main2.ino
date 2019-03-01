@@ -61,7 +61,7 @@ void setup() {
   Brain b = Brain(p,1);
 
   float phases [] = {.1, .7, .8, .23, .6, .42, .7, .9, .8, .6, .73, .7, .5, .44, .6};
-  
+  Serial.println("A");
   for(int i = 0; i < NUM*3; i++){
     float cur_weights[SIZE], cur_bias[SIZE];
     for(int j = 0; j < SIZE; j++){
@@ -72,12 +72,12 @@ void setup() {
   }
 
     for(int i = 0; i < NUM*3; i++){
-    for(int j = 0; j < SIZE; j++){
-      Serial.print(b.bias[i][j]);
-      Serial.print(" ");
+      for(int j = 0; j < SIZE; j++){
+        Serial.print(b.bias[i][j]);
+        Serial.print(" ");
+      }
+      Serial.println();
     }
-    Serial.println();
-  }
   Serial.println();
   Serial.println();
  

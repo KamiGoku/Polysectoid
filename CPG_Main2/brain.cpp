@@ -35,7 +35,25 @@ public:
 				weights[i][5] = pattern.cross_weight[k][0];
 				weights[i][6] = pattern.cross_weight[k][1];
 
-				for (int j = 0; j < 5; j++) {
+       
+        for (int w = NUM-1; w >= 3; w--){//before
+          for (int x = 0; x < w; x++){
+            for (int y = 0; y < 2; y++){
+              weights[x+y*NUM][x+(NUM-w)] = pattern.weight_pat_before[y][x];
+              bias[x+y*NUM][x+(NUM-w)] = pattern.bias_pat_before[y][x];
+            }
+          }
+        }
+        for (int w = NUM-1; w >= 3; w--){//after
+          for (int x = 0; x < w; x++){
+             for (int y = 0; y < 2; y++){
+              weights[x+(NUM-w)+y*NUM][x] = pattern.weight_pat_after[y][x];
+              bias[x+(NUM-w)+y*NUM][x] = pattern.bias_pat_after[y][x];
+            }
+          }
+        }
+
+				/*for (int j = 0; j < 5; j++) {
 					if (i == 0 && j < 3) {
 						weights[i][j] = weight_row[j + 2];
 					}
@@ -51,7 +69,7 @@ public:
 					else if (i == 4 && j > 1) {
 						weights[i][j] = weight_row[j - 2];
 					}
-				}
+				}*/
 			}
 		}
 
@@ -62,4 +80,3 @@ public:
 	}
  
 };
-
