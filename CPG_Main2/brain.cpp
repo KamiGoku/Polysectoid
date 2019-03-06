@@ -17,7 +17,7 @@ public:
 		//Weight calculation
 		for (int k = 0; k < 3; k++) {
 			float weight_row[NUM], bias_row[NUM];
-			/*weight_row[0] = pattern.weight_pat_after[k][0];
+			weight_row[0] = pattern.weight_pat_after[k][0];
 			weight_row[1] = pattern.weight_pat_after[k][1];
 			weight_row[2] = 0;
 			weight_row[3] = pattern.weight_pat_before[k][0];
@@ -27,7 +27,7 @@ public:
 			bias_row[1] = -1*pattern.bias_pat_after[k][0];
 			bias_row[2] = 0;
 			bias_row[3] = pattern.bias_pat_before[k][0];
-			bias_row[4] = pattern.bias_pat_before[k][0] + pattern.bias_pat_before[k][1];*/
+			bias_row[4] = pattern.bias_pat_before[k][0] + pattern.bias_pat_before[k][1];
 			
 
 
@@ -38,14 +38,18 @@ public:
        
         for (int w = NUM-1; w >= 3; w--){//before
           for (int x = 0; x < w; x++){
-            weights[x+k*NUM][x+(NUM-w)] = pattern.weight_pat_before[k][x];
-            bias[x+k*NUM][x+(NUM-w)] = pattern.bias_pat_before[k][x];
+            for (int y = 0; y < 2; y++){
+              weights[x+y*NUM][x+(NUM-w)] = pattern.weight_pat_before[y][x];
+              bias[x+y*NUM][x+(NUM-w)] = pattern.bias_pat_before[y][x];
+            }
           }
         }
         for (int w = NUM-1; w >= 3; w--){//after
           for (int x = 0; x < w; x++){
-            weights[x+(NUM-w)+k*NUM][x] = pattern.weight_pat_after[k][x];
-            bias[x+(NUM-w)+k*NUM][x] = pattern.bias_pat_after[k][x];
+             for (int y = 0; y < 2; y++){
+              weights[x+(NUM-w)+y*NUM][x] = pattern.weight_pat_after[y][x];
+              bias[x+(NUM-w)+y*NUM][x] = pattern.bias_pat_after[y][x];
+            }
           }
         }
 
