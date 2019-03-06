@@ -112,7 +112,6 @@ void loop() {
   packet[14] = '\n';
 
   serialTwo.write(packet, 15);
-  //Serial.write(packet+1, 14);
 
   //Serial.println(serialOne.available());
   while (serialOne.available() > 0){

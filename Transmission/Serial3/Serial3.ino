@@ -11,7 +11,7 @@
 HardwareSerial &serialOne = Serial;
 AltSoftSerial serialTwo; //pins 8,9, will send from pin9 TX
 
-double my_array[10] = {0.555, 0.666, 0.777, 0.888, 0.999, 0.999, 0.888, 0.777, 0.4, 0.555};
+double my_array[10] = {0.555, 0.666, 0.777, 0.888, 0.999, 0.999, 0.888, 0.777, 0.36, 0.555};
 uint32_t my_idx = 0;
 
 int read_flag = 0;
