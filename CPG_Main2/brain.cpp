@@ -34,8 +34,6 @@ public:
 			for (int i = k*5; i < (k+1)*5; i++) {
 				weights[i][5] = pattern.cross_weight[k][0];
 				weights[i][6] = pattern.cross_weight[k][1];
-        bias[i][5] = 0;
-        bias[i][6] = 0;
 
        
         for (int w = NUM-1; w >= 3; w--){//before
@@ -54,23 +52,18 @@ public:
 				/*for (int j = 0; j < 5; j++) {
 					if (i == 0 && j < 3) {
 						weights[i][j] = weight_row[j + 2];
-            bias[i][j] = bias_row[j+2];
 					}
 					else if (i == 1 && j < 4) {
 						weights[i][j] = weight_row[j + 1];
-            bias[i][j] = bias_row[j+1];
 					}
 					else if (i == 2 && j < 5) {
 						weights[i][j] = weight_row[j];
-            bias[i][j] = bias_row[j];
 					}
 					else if (i == 3 && j > 0) {
 						weights[i][j] = weight_row[j - 1];
-            bias[i][j] = bias_row[j-1];
 					}
 					else if (i == 4 && j > 1) {
 						weights[i][j] = weight_row[j - 2];
-            bias[i][j] = bias_row[j-2];
 					}
 				}*/
 			}
