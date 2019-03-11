@@ -1,7 +1,6 @@
 #include <math.h>
 #define NUM 5
 #define SIZE NUM + 2
-#define PI 3.14159265358979323846
 
 
 
@@ -32,10 +31,10 @@ public:
 		float sum = 0.0;
 
 		for (int i = 0; i < SIZE; i++) {
-			sum += (weights[i] * sin((double) ((neighbor_phases[i] - phase) * 2 * PI - bias[i])));
+			sum += (weights[i] * sin((double) ((neighbor_phases[i] - phase) * 2 * M_PI - bias[i])));
 		}
 
-		sum = ((2 * PI * int_freq) + sum) / (2 * PI * tau);
+		sum = ((2 * M_PI * int_freq) + sum) / (2 * M_PI * tau);
 
 		double modVal = 1;
 		phase = modf(sum + phase, &modVal);

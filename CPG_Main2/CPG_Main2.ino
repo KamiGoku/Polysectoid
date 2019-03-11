@@ -1,89 +1,112 @@
-#include "cpg.cpp"
 #include "brain.cpp"
+#include <avr/pgmspace.h>
 
-template<class T> inline Print &operator <<(Print &obj, T arg) { obj.print(arg); return obj; } //To make the " Serial << output " syntax possible
 
 
+
+//template<class T> inline Print &operator <<(Print &obj, T arg) { obj.print(arg); return obj; } //To make the " Serial << output " syntax possible
+
+
+  // Brain Variables  
+const float bias_pat_before[3][numBefore] PROGMEM = {{0.1, 0.1},
+                                                     {0.1, 0.1},
+                                                     {0.1, 0.1}};
+const float bias_pat_after[3][numAfter] PROGMEM = {{0.1, 0.1},
+                                                   {0.1, 0.1},
+                                                   {0.1, 0.1}};
+
+const float weight_pat_before [3][numBefore] PROGMEM = {{0.008, 0.004},
+                                                        {0.02, 0.01},
+                                                        {0.008, 0.004}};
+const float weight_pat_after [3][numAfter] PROGMEM = {{0.008, 0.004},
+                                                      {0.02, 0.01},
+                                                      {0.008, 0.004}};
+
+const float cross_weight [3][2] PROGMEM = {{0.0003, 0.0003},
+                                           {0.0003, 0.0003},
+                                           {0.0003, 0.0003}};
+                             
+const float cross_bias [3][2] PROGMEM = {{0, 0},
+                                         {0, 0},
+                                         {0, 0}};
+
+const float int_freq[15] PROGMEM = {0.02,0.02,0.02,0.02,0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02 , 0.02, 0.02 };
+
+const float init_phases [] PROGMEM = {.1, .7, .8, .23, .6, .42, .7, .9, .8, .6, .73, .7, .5, .44, .6};
+
+
+Actuator actuators[NUM*3];
 float phases[NUM*3];
 
 
-// Brain Variables
-float bias_pat_before [3][numBefore] = {{0.1, 0.1},
-                                        {0.1, 0.1},
-                                        {0.1, 0.1}};
-float bias_pat_after[3][numAfter]= {{0.1, 0.1},
-                                   {0.1, 0.1},
-                                   {0.1, 0.1}};
-
-float weight_pat_before [3][numBefore] = {{0.008, 0.004},
-                                          {0.02, 0.01},
-                                          {0.008, 0.004}};
-float weight_pat_after [3][numAfter] = {{0.008, 0.004},
-                                        {0.02, 0.01},
-                                        {0.008, 0.004}};
-
-float cross_weight [3][2] = {{0.0003, 0.0003},
-                             {0.0003, 0.0003},
-                             {0.0003, 0.0003}};
-                             
-float cross_bias [3][2] = {{0, 0},
-                           {0, 0},
-                           {0, 0}};
-
-float int_freq[15] = {0.02,0.02,0.02,0.02,0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02 , 0.02, 0.02 };
-
-Actuator actuators[NUM*3];
 void setup() {
   Serial.begin(9600);
-
+      
   
   Pattern p = Pattern();
   for(int i = 0; i < 3; i++){
     for(int j = 0; j < 2; j++){
-        p.bias_pat_before[i][j] = bias_pat_before[i][j];
-        p.bias_pat_after[i][j] = bias_pat_after[i][j];
-        p.weight_pat_before[i][j] = weight_pat_before[i][j];
-        p.weight_pat_after[i][j] = weight_pat_after[i][j];
-        p.cross_weight[i][j] = cross_weight[i][j];
-        p.cross_bias[i][j] = cross_bias[i][j];
+        p.bias_pat_before[i][j] = pgm_read_float(&bias_pat_before[i][j]);
+        p.bias_pat_after[i][j] = pgm_read_float(&bias_pat_after[i][j]);
+        p.weight_pat_before[i][j] = pgm_read_float(&weight_pat_before[i][j]);
+        p.weight_pat_after[i][j] = pgm_read_float(&weight_pat_after[i][j]);
+        p.cross_weight[i][j] = pgm_read_float(&cross_weight[i][j]);
+        p.cross_bias[i][j] = pgm_read_float(&cross_bias[i][j]);
     }
   }
 
+
   for(int i = 0; i < NUM*3; i++){
      p.int_freq[i] = int_freq[i];
- 
   }
 
- //Serial << 'a';
 
+  for(int i = 0; i < 3; i++){
+    for(int j = 0; j < 2; j++){
+      Serial.print(p.bias_pat_after[i][j], 4);
+      Serial.print(F(" "));
+    }
+    Serial.println();
+
+  }
+  Serial.flush();
 
   
-  Brain b = Brain(p,1);
+  Brain b = Brain(&p,1.0);
 
-  float phases [] = {.1, .7, .8, .23, .6, .42, .7, .9, .8, .6, .73, .7, .5, .44, .6};
-  
+  Serial.println(F("asdf"));
+
+  for(int i = 0; i < 5; i++){
+    for(int j = 0; j < SIZE; j++){
+      Serial.print(b.weights[i][j],4);
+      Serial.print(F(" "));
+    }
+    Serial.println();
+  }
+  /*for(int i = 0; i<3; i++){
+    for(int j = 0; j<2;j++){
+      Serial.print(p.bias_pat_after[i][j],4);
+      Serial.print(" ");
+    }
+    Serial.println();
+  }
+  Serial.flush();*/
+
+
+
+
   for(int i = 0; i < NUM*3; i++){
     float cur_weights[SIZE], cur_bias[SIZE];
     for(int j = 0; j < SIZE; j++){
       cur_weights[j] = b.weights[i][j];
       cur_bias[j] = b.bias[i][j];
     }
-    actuators[i] = Actuator(cur_weights, b.int_freq[i], cur_bias, b.tau, phases[i]);
+    //actuators[i] = Actuator(cur_weights, b.int_freq[i], cur_bias, b.tau, init_phases[i]);
   }
 
-    for(int i = 0; i < NUM*3; i++){
-    for(int j = 0; j < SIZE; j++){
-      Serial.print(b.bias[i][j]);
-      Serial.print(" ");
-    }
-    Serial.println();
-  }
-  Serial.println();
-  Serial.println();
+  
  
-  //Serial << 'b';
 }
-
 void loop() {
   for(int i = 0; i < NUM*3; i++){
     float rel_phases [SIZE];
