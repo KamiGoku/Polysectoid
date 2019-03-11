@@ -4,8 +4,9 @@
 #include <AltSoftSerial.h>
 #include <math.h>
 #include <RingBuf.h>
+#include "Serial_FL.h"
 
-#define PACKET_SIZE 14
+//#define PACKET_SIZE 14
 
 //NeoSWSerial serialOne(2,3); //RX, TX, will send from pin3 TX
 HardwareSerial &serialOne = Serial;
@@ -15,7 +16,6 @@ RingBuf *buf = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // Buffer that holds
 
 double my_array[10] = {0.11, 0.222, 0.33, 0.444, 0.55, 0.555, 0.444, 0.33, 0.52, 0.11};
 uint32_t my_idx = 0;
-int read_flag = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -58,7 +58,7 @@ void setup() {
 }
 
 
-void processData() {
+/*void processData() {
   while(!buf->isEmpty(buf)){
     char packet[PACKET_SIZE];
     buf->pull(buf, &packet);
@@ -98,12 +98,13 @@ void processIncomingByte(byte inByte){
       }
   }
   
-}
+}*/
 
 
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  // put your main code here, to run repeatedly:f
+  static int read_flag = 0;
 
   char packet[15];
   dtostrf(my_array[my_idx], 13, 11, packet+1);
@@ -111,18 +112,19 @@ void loop() {
   packet[0] = '\t';
   packet[14] = '\n';
 
-  serialTwo.write(packet, 15);
+  //serialTwo.write(packet, 15);
+  sendData(serialTwo, packet);
 
-  //Serial.println(serialOne.available());
-  while (serialOne.available() > 0){
-    char c = serialOne.read();
+  readData(serialTwo, read_flag, buf);
+  /*while (serialTwo.available() > 0){
+    char c = serialTwo.read();
     if (read_flag == 1) {
       processIncomingByte(c);
     }
     if (c == '\t'){
       read_flag = 1;
     }
-  }
+  }*/
 
   
 

@@ -4,6 +4,7 @@
 #include <AltSoftSerial.h>
 #include <math.h>
 #include <RingBuf.h>
+#include "Serial_FL.h"
 
 #define PACKET_SIZE 14
 
@@ -11,10 +12,8 @@
 HardwareSerial &serialOne = Serial;
 AltSoftSerial serialTwo; //pins 8,9, will send from pin9 TX
 
-double my_array[10] = {0.555, 0.666, 0.777, 0.888, 0.999, 0.999, 0.888, 0.777, 0.36, 0.555};
+double my_array[10] = {0.555, 0.666, 0.777, 0.888, 0.999, 0.999, 0.888, 0.777, 0.4, 0.555};
 uint32_t my_idx = 0;
-
-int read_flag = 0;
 
 RingBuf *buf = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // Buffer that holds 10 packets
 
@@ -60,7 +59,7 @@ void setup() {
 
 }
 
-void processData() {
+/*void processData() {
   while(!buf->isEmpty(buf)){
     char packet[PACKET_SIZE];
     buf->pull(buf, &packet);
@@ -100,10 +99,11 @@ void processIncomingByte(byte inByte){
       }
   }
   
-}
+}*/
 
 void loop() {
   // put your main code here, to run repeatedly:
+  static int read_flag = 0;
 
   char packet[15];
   dtostrf(my_array[my_idx], 13, 11, packet+1);
@@ -111,10 +111,11 @@ void loop() {
   packet[0] = '\t';
   packet[14] = '\n';
 
-  serialTwo.write(packet, 15);
+  //serialTwo.write(packet, 15);
+  sendData(serialTwo, packet);
 
-  //Serial.println(serialTwo.available());
-  while (serialTwo.available() > 0){
+  readData(serialTwo, read_flag, buf);
+  /*while (serialTwo.available() > 0){
     char c = serialTwo.read();
     if (read_flag == 1){
       processIncomingByte(c);
@@ -122,7 +123,7 @@ void loop() {
     if (c == '\t'){
       read_flag = 1;
     }
-  }
+  }*/
 
 
 }

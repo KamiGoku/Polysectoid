@@ -4,6 +4,7 @@
 #include <AltSoftSerial.h>
 #include <math.h>
 #include <RingBuf.h>
+#include "Serial_IB.h"
 
 #define PACKET_SIZE 14
 
@@ -13,10 +14,6 @@ AltSoftSerial serialTwo; //pins 8,9, will receive on pin8 RX and send from pin9 
 
 RingBuf *buf = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // Buffer that holds 10 packets
 RingBuf *buf2 = RingBuf_new(PACKET_SIZE * sizeof(char), 10); // 2nd buffer for third arduino
-
-int read_flag = 0;
-int read_flag2 = 0;
-int muh_bool = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -60,7 +57,7 @@ void setup() {
 
 }
 
-void processData(int which_serial) {
+/*void processData(int which_serial) {
   if (which_serial == 2) {
     while(!buf->isEmpty(buf)){
       char packet[15];
@@ -82,9 +79,9 @@ void processData(int which_serial) {
     return;
   }
   return;
-}
+}*/
 
-void processIncomingByte(byte inByte, int which_buf){
+/*void processIncomingByte(byte inByte, int which_buf){
   static char input[PACKET_SIZE];
   static char input2[PACKET_SIZE];
   static uint32_t input_idx = 0;
@@ -141,15 +138,18 @@ void processIncomingByte(byte inByte, int which_buf){
       }
     }
   }
-}
+}*/
 
 void loop() {
   // put your main code here, to run repeatedly:
 
-  //Serial.println(serialOne.available());
-  //write some protocol so that we only read one packet per loop so that serialOne doesn't monopolize the loop(?)
+  static int read_flag = 0;
+  static int read_flag2 = 0;
+
+  readARX(Serial, serialTwo, read_flag, buf);
+  readTRX(Serial, serialTwo, read_flag2, buf2);
   
-  while (serialTwo.available() > 0){
+  /*while (serialTwo.available() > 0){
     char c = serialTwo.read();
     if (read_flag == 1){
       processIncomingByte(c, 1);
@@ -160,7 +160,7 @@ void loop() {
     if (c == '\t'){
       read_flag = 1;
     }
-  }
+  }*/
 
   /*char packet[PACKET_SIZE];
   if (!buf->isEmpty(buf)) {
@@ -169,8 +169,8 @@ void loop() {
   }*/
 
   //serialTwo.listen();
-
-  while (serialOne.available() > 0){
+/////////////////////////////////
+  /*while (serialOne.available() > 0){
     char c = serialOne.read();
     if (read_flag2 == 1){
       processIncomingByte(c, 2);
@@ -181,7 +181,7 @@ void loop() {
     if (c == '\t'){
       read_flag2 = 1;
     }
-  }
+  }*/
 
   /*char packet2[PACKET_SIZE];
   //if (!buf2->isEmpty(buf2)) {
