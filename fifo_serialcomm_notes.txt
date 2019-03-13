@@ -1,0 +1,13 @@
+RingBuf + Serial Transmission:
+
+- Use Timer ISR to sample data and send it to UART -- send_packet() like in Sender.ino
+
+- Another ISR is used for the receiver part -- the TM4C123 had a UART ISR which (probably?) 
+just triggered whenever the UART got new data, but I think in our case just Serial.available()
+is like the same thing.
+
+- The "UART ISR" (however it gets implemented) will read the packets it received à la Receiver.ino,
+and then put it in the FIFO.
+
+- The main "loop()" should then go on to use the data in the FIFO. There should either be an appropriate
+delay before it does so, or it could just spin on the FIFO's empty condition.

@@ -1,5 +1,13 @@
 //#include "brain.cpp"
 #include "cpg.cpp"
+#include <FastPID.h>
+
+float Kp=0.1, Ki=0, Kd=0.1, Hz=10;
+int output_bits = 10;
+bool output_signed = false;
+
+FastPID myPID(Kp, Ki, Kd, Hz, output_bits, output_signed);
+int sensorPin1 = A0;                              // One of the sensors
 
 Actuator actuators[NUM*3];
 float phases[NUM*3];
@@ -8,6 +16,7 @@ Brain b;
 
 void setup() {
   Serial.begin(9600);
+  pinMode(sensorPin1,INPUT);
   
 
 
@@ -76,15 +85,9 @@ void loop() {
     
     float curr_phase = actuators[i].update_phase(rel_phases);
     phases[i] = curr_phase;
+    int potentiometer = analogRead(sensorPin1);
+    uint16_t output = step((int) curr_phase*1024, potentiometer);
 
-    /*if(i == NUM*3-1){
-      Serial.println(10*curr_phase);
-      Serial.print(" ");
-    }
-    else{
-      Serial.print(10*curr_phase);     
-      Serial.print(" "); 
-    }*/
 
       Serial.print(10*curr_phase);
       if(i != 14){
@@ -93,31 +96,6 @@ void loop() {
       else{
         Serial.println();
       }
-    
-
-    /*if(i == 0){
-      Serial.print(10*curr_phase);
-      Serial.print(" ");
-    }
-    if(i== 5){
-      Serial.print(10*curr_phase);
-      Serial.print(" ");      
-    }
-    if(i == 10){
-      Serial.println(10*curr_phase);
-      Serial.print(" ");
-    }
-    if(i == 14){
-      Serial.println();
-    }*/
-    
-    /*Serial.print("ID: ");
-    Serial.print(i);
-    Serial.print(", ");
-    Serial.println(curr_phase);*/
-    //Serial.print(2);
-    //Serial.print(" ");
-    //Serial.println(1);
   }
 
 
