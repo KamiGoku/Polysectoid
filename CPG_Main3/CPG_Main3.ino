@@ -75,6 +75,7 @@ void loop() {
     }
     
     float curr_phase = actuators[i].update_phase(rel_phases);
+    phases[i] = curr_phase;
 
     /*if(i == NUM*3-1){
       Serial.println(10*curr_phase);
@@ -85,7 +86,16 @@ void loop() {
       Serial.print(" "); 
     }*/
 
-    if(i == 0){
+      Serial.print(10*curr_phase);
+      if(i != 14){
+        Serial.print(" ");
+      }
+      else{
+        Serial.println();
+      }
+    
+
+    /*if(i == 0){
       Serial.print(10*curr_phase);
       Serial.print(" ");
     }
@@ -99,7 +109,7 @@ void loop() {
     }
     if(i == 14){
       Serial.println();
-    }
+    }*/
     
     /*Serial.print("ID: ");
     Serial.print(i);

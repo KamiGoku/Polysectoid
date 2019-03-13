@@ -14,7 +14,7 @@ public:
 	//float int_freq;			    // Intrinsic Frequency
 	//float bias[SIZE];			  // Bias for neighboring arduinos
 	//float tau;					    // Frequency parameter
-	float phase;				    // Current phase of this actuator 
+	float phase;				      // Current phase of this actuator 
   int index;
 
 	Actuator(float Weights[], float Int_freq, float Bias[], float Tau, float Phase) {
