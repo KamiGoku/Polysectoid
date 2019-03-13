@@ -1,10 +1,7 @@
 #include <math.h>
 #include "brain.cpp"
 
-
 extern Brain b;
-
-
 
 class Actuator {
 public:
@@ -15,7 +12,7 @@ public:
 	//float bias[SIZE];			  // Bias for neighboring arduinos
 	//float tau;					    // Frequency parameter
 	float phase;				      // Current phase of this actuator 
-  int index;
+  int index;                // ID number of Oscillator
 
 	Actuator(float Weights[], float Int_freq, float Bias[], float Tau, float Phase) {
 		/*int_freq = Int_freq;
@@ -27,8 +24,6 @@ public:
 		}*/
 	}
  Actuator(){}
-
-
 
 	float update_phase(float neighbor_phases[]) {
 		float sum = 0.0;
@@ -46,8 +41,7 @@ public:
       sum += (intpart * sin((double) ((neighbor_phases[i] - phase) * 2 * M_PI - fracpart)));
 		}
 
-		//sum = ((2 * M_PI * int_freq) + sum) / (2 * M_PI * tau);
-   sum = ((2 * M_PI * int_freq[index]) + sum) / (2 * M_PI * tau);
+    sum = ((2 * M_PI * int_freq[index]) + sum) / (2 * M_PI * tau);
 
 		double modVal = 1;
 		phase = modf(sum + phase, &modVal);

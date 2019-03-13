@@ -1,4 +1,3 @@
-//#include "cpg.cpp"
 #define numBefore 2
 #define numAfter 2
 #define NUM 5
@@ -84,14 +83,7 @@ public:
           }
         }
       }
-    }
-
-
-
-
-    
-	}
-
- 
+    }    
+	} 
 };
 
