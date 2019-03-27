@@ -33,6 +33,8 @@ void loop()
 {
   int setpoint = analogRead(PIN_SETPOINT) / 2; 
   int feedback = analogRead(PIN_INPUT);
+  feedback=160;
+  
   uint32_t before, after;
   before = micros();
   uint8_t output = myPID.step(setpoint, feedback);

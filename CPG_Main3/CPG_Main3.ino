@@ -2,11 +2,11 @@
 #include <PWM.h>
 #include <FastPID.h>
 
-float Kp=1, Ki=1, Kd=1, Hz=10;
-int output_bits = 16;
+float Kp=0.1, Ki=0.5, Kd=0.1, Hz=10;
+int output_bits = 10;
 bool output_signed = false;
 
-FastPID myPID;
+FastPID myPID(Kp, Ki, Kd, Hz, output_bits, output_signed);
 int inputPin = A0;                             
 int pwmPin = 3;
 
@@ -19,8 +19,6 @@ void setup() {
   Serial.begin(9600);
   pinMode(inputPin, INPUT);
   pinMode(pwmPin, OUTPUT);
-
-  myPID.configure(Kp, Ki, Kd, Hz, output_bits, output_signed);
 
   //printTables();
 
@@ -70,7 +68,7 @@ void loop() {
       Serial.println(output);
     }
     
-
+    delay(30);
 
     //Serial.print(10*curr_phase);
     //i != 14 ? Serial.print(" ") : Serial.println();
