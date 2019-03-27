@@ -2,11 +2,11 @@
 #include <PWM.h>
 #include <FastPID.h>
 
-float Kp=0.1, Ki=0, Kd=0.1, Hz=10;
-int output_bits = 10;
+float Kp=1, Ki=1, Kd=1, Hz=10;
+int output_bits = 16;
 bool output_signed = false;
 
-FastPID myPID(Kp, Ki, Kd, Hz, output_bits, output_signed);
+FastPID myPID;
 int inputPin = A0;                             
 int pwmPin = 3;
 
@@ -19,6 +19,8 @@ void setup() {
   Serial.begin(9600);
   pinMode(inputPin, INPUT);
   pinMode(pwmPin, OUTPUT);
+
+  myPID.configure(Kp, Ki, Kd, Hz, output_bits, output_signed);
 
   //printTables();
 
@@ -55,13 +57,23 @@ void loop() {
     
     float curr_phase = actuators[i].update_phase(rel_phases);
     phases[i] = curr_phase;
-    int potentiometer = analogRead(inputPin);
-    uint16_t output = myPID.step((int) curr_phase*1024, potentiometer);
-    pwmWrite(pwmPin, output);
+
+    if(i == 0){
+      int potentiometer = analogRead(inputPin);
+      uint16_t output = myPID.step((int) curr_phase*1024, potentiometer);
+      pwmWrite(pwmPin, output);
+      Serial.print(F("Expected: "));
+      Serial.print(curr_phase*1024);
+      Serial.print(F("     Actual: "));
+      Serial.println(potentiometer);
+      Serial.print(F("Output: "));
+      Serial.println(output);
+    }
+    
 
 
-    Serial.print(10*curr_phase);
-    i != 14 ? Serial.print(" ") : Serial.println();
+    //Serial.print(10*curr_phase);
+    //i != 14 ? Serial.print(" ") : Serial.println();
   } 
 }
 
