@@ -6,7 +6,6 @@
  * up the hardware Serial port to be used for debugging.
  */
 
-#include <NeoSWSerial.h>
 #include <AltSoftSerial.h>
 #include <RingBuf.h>
 #include "Serial_FL.h"

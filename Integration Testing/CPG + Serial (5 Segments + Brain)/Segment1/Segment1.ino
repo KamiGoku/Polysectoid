@@ -6,9 +6,9 @@ void setup() {
   Serial.begin(9600);
 
   // Hardcoding initial phases
-  actuators[0] = 0.1;
-  actuators[1] = 0.42;
-  actuators[2] = 0.73;
+  actuators[0].phase = 0.1;
+  actuators[1].phase = 0.42;
+  actuators[2].phase = 0.73;
 
   // IMPORT ALL THE ABOVE VARIABLES HERE FROM BRAIN RAIYAN :)
   while(1){           // Break out once all 3 actuatos have received all data from brain
@@ -32,8 +32,8 @@ void loop() {
       bool ready = false;
       while(!ready){
         ready = true;
-        for(int i = 0; i < NUM; i++){
-          if(arduino[i]
+        for(int j = 0; j < NUM; j++){
+          if(actuators[i].neighbor_phases[j] == 0){ready = false;};
         }
       }
     }
