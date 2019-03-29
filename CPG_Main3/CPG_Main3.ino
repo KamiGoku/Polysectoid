@@ -29,7 +29,7 @@ void setup() {
 
 }
 void loop() {
-  for(int i = 0; i < NUM*3; i++){
+  for(int i = 0; i < NUM*3; i++)0{
     float rel_phases [SIZE];
     if(i < 5){
       for(int j = 0; j < 5; j++){
