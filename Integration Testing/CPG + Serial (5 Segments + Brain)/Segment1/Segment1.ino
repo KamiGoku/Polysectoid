@@ -1,44 +1,54 @@
 #include "cpg.cpp"  
-  float weights[SIZE];    // Weights for neighboring arduinos (0-4 -> vertical connection) (5,6 -> horizontal connections)
-  float int_freq;         // Intrinsic Frequency
-  float bias[SIZE];       // Bias for neighboring arduinos
-  float tau;              // Frequency parameter
-  float phase;            // Current phase of this actuator 
-  int index;              // ID number of Oscillator
 
-
+ Actuator actuators [3];    // Oscillators 0, 5, 10
 
 void setup() {
   Serial.begin(9600);
 
-  // IMPORT ALL THE ABOVE VARIABLES HERE FROM BRAIN RAIYAN :)
+  // Hardcoding initial phases
+  actuators[0] = 0.1;
+  actuators[1] = 0.42;
+  actuators[2] = 0.73;
 
+  // IMPORT ALL THE ABOVE VARIABLES HERE FROM BRAIN RAIYAN :)
+  while(1){           // Break out once all 3 actuatos have received all data from brain
+
+
+    
+  }
+
+  delay(1000);      // Chill for a sec to make sure all other arduinos are ready
 
 }
 
 void loop() {
-
-    float sum = 0.0;
-
-    for (int i = 0; i < SIZE; i++) {
-      //sum += (weights[i] * sin((double) ((neighbor_phases[i] - phase) * 2 * M_PI - bias[i])));
-      double intpart,fracpart;
-      fracpart = modf(b.weights_bias[index][i], &intpart);
-      intpart = intpart/10000;
-
-      if(index == 0 || index == 1 || index == 5 || index == 6 || index == 10 || index == 11){
-        fracpart *= -1;
-      }
-
-      sum += (intpart * sin((double) ((neighbor_phases[i] - phase) * 2 * M_PI - fracpart)));
+    // Step 1: Each arduino sends their phase to 7 other arduinos
+    for(int i = 0; i < 3; i++){
+      
     }
 
-    sum = ((2 * M_PI * int_freq[index]) + sum) / (2 * M_PI * tau);
+    // Step 2: wait until each arduino has gotten phase data from the other 7 arduinos
+    for(int i = 0; i < 3; i++){
+      bool ready = false;
+      while(!ready){
+        ready = true;
+        for(int i = 0; i < NUM; i++){
+          if(arduino[i]
+        }
+      }
+    }
+    
+    
 
-    double modVal = 1;
-    phase = modf(sum + phase, &modVal);
-
-    Serial.print( (float) phase );  
+    //Serial.print( (float) phase );  
 
   
 }
+
+// Send phase data to oscillator index
+void sendData(int index, float phase){
+
+
+  
+}
+
