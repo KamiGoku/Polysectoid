@@ -4,12 +4,12 @@
 #define SIZE NUM + 2
 
 // Brain Variables  
-const float bias_pat_before[3][numBefore] = {{0.1, 0.1},
-                                             {0.1, 0.1},
-                                             {0.1, 0.1}};
-const float bias_pat_after[3][numAfter] = {{0.1, 0.1},
-                                           {0.1, 0.1},
-                                           {0.1, 0.1}};
+const float bias_pat_before[3][numBefore] = {{.20, .20},
+                                             {.20, .20},
+                                             {.20, .20}};
+const float bias_pat_after[3][numAfter] = {{.20, .20},
+                                           {.20, .20},
+                                           {.20, .20}};
 
 const float weight_pat_before [3][numBefore] = {{0.008, 0.004},
                                                 {0.02, 0.01},
@@ -28,9 +28,9 @@ const float cross_bias [3][2] = {{0, 0},
 
 const float int_freq[15] = {0.02, 0.02, 0.02, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.02, 0.02};
 
-const float init_phases [] = {.1, .7, .8, .23, .6, .42, .7, .9, .8, .6, .73, .7, .5, .44, .6};
+const float init_phases [15] = {.1, .7, .8, .23, .6, .42, .7, .9, .8, .6, .73, .7, .5, .44, .6};
 
-const float tau = 1.0;                                // Frequency parameter
+const float tau = 2;                                // Frequency parameter
 
 
 class Brain {

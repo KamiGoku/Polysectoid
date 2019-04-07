@@ -5,8 +5,6 @@ extern Brain b;
 
 class Actuator {
 public:
- 
-
 	//float weights[SIZE];		// Weights for neighboring arduinos (0-4 -> vertical connection) (5,6 -> horizontal connections)
 	//float int_freq;			    // Intrinsic Frequency
 	//float bias[SIZE];			  // Bias for neighboring arduinos
@@ -14,31 +12,24 @@ public:
 	float phase;				      // Current phase of this actuator 
   int index;                // ID number of Oscillator
 
-	Actuator(float Weights[], float Int_freq, float Bias[], float Tau, float Phase) {
-		/*int_freq = Int_freq;
-		tau = Tau;
-    phase = Phase;
-		for (int i = 0; i < SIZE; i++) {
-			weights[i] = Weights[i];
-			bias[i] = Bias[i];
-		}*/
-	}
  Actuator(){}
 
 	float update_phase(float neighbor_phases[]) {
 		float sum = 0.0;
 
 		for (int i = 0; i < SIZE; i++) {
-			//sum += (weights[i] * sin((double) ((neighbor_phases[i] - phase) * 2 * M_PI - bias[i])));
-      double intpart,fracpart;
-      fracpart = modf(b.weights_bias[index][i], &intpart);
-      intpart = intpart/10000;
+      double weight,bias;
+      bias = modf(b.weights_bias[index][i], &weight);
+      weight = weight/10000.0;
 
-      if(index == 0 || index == 1 || index == 5 || index == 6 || index == 10 || index == 11){
-        fracpart *= -1;
+      if(((index==1 || index==6 || index==11) && (i==0)) || 
+         ((index==2 || index==7 || index==12) && (i==0 || i==1)) ||
+         ((index==3 || index==8 || index==13) && (i==1 || i==2)) ||
+         ((index==4 || index==9 || index==14) && (i==2 || i==3))){
+          
+          bias *= -1;
       }
-
-      sum += (intpart * sin((double) ((neighbor_phases[i] - phase) * 2 * M_PI - fracpart)));
+      sum += weight * sin((double) ((neighbor_phases[i] - phase) * 2 * M_PI - bias));
 		}
 
     sum = ((2 * M_PI * int_freq[index]) + sum) / (2 * M_PI * tau);
