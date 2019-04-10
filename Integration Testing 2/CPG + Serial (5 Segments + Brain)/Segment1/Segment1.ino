@@ -52,6 +52,9 @@ void setup() {
       } else if (brain_packet[brain_idx-2] == '1' && brain_packet[brain_idx-1] == '0') {
         setActuators(brain_packet, brain_idx, 2);
       }
+      else {
+        //send these values off to the next arduino
+      }
     }
     free(brain_packet);
   }
