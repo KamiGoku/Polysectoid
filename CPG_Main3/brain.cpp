@@ -4,12 +4,18 @@
 #define SIZE NUM + 2
 
 // Brain Variables  
-const float bias_pat_before[3][numBefore] = {{.20, .20},
+/*const float bias_pat_before[3][numBefore] = {{.20, .20},
                                              {.20, .20},
                                              {.20, .20}};
 const float bias_pat_after[3][numAfter] = {{.20, .20},
                                            {.20, .20},
-                                           {.20, .20}};
+                                           {.20, .20}};*/
+const float bias_pat_before[3][numBefore] = {{.10, .10},
+                                             {.10, .10},
+                                             {.10, .10}};
+const float bias_pat_after[3][numAfter] = {{.10, .10},
+                                           {.10, .10},
+                                           {.10, .10}};                                           
 
 const float weight_pat_before [3][numBefore] = {{0.008, 0.004},
                                                 {0.02, 0.01},

@@ -20,7 +20,7 @@ void setup() {
   pinMode(inputPin, INPUT);
   pinMode(pwmPin, OUTPUT);
 
-  //printTables();
+ printTables();
 
   //Create 15 Oscillators
   for(int i = 0; i < NUM*3; i++){
