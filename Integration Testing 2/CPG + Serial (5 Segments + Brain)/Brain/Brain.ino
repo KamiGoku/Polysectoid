@@ -1,14 +1,10 @@
 #include "brain.cpp"
-#include <AltSoftSerial.h>
-#include "Serial_B.h"
 Brain b;
-AltSoftSerial brainSerial;
 
 void setup() {
   Serial.begin(9600);
-  while(!Serial);
-  brainSerial.begin(9600);
 
+  delay(3000);
   for(int i = 0; i < NUM*3; i++){
     float weights_i[SIZE], biases_i[SIZE], int_freq_i, init_phase_i, tau_i; // SEND ALL OF THESE TO OSCILLATOR i RAIYAN :)
 
@@ -21,14 +17,14 @@ void setup() {
         bias *= -1;
       }
       
-      weights_i[i] = weight;
-      biases_i[i] = bias;
+      weights_i[j] = weight;
+      biases_i[j] = bias;
     }
 
     int_freq_i = int_freq[i];
     init_phase_i = init_phases[i];
     tau_i = tau;  
-
+    
     //\t character to start - 1
     //'b' to specify brain (alternatively 's' will specify segment elsewhere) - 2
     //space - 3
@@ -40,42 +36,41 @@ void setup() {
     //1 phase -- 6+1 = 7 -- 118
     //1 tau -- 6+0 (no space needed) = 6 -- 124
     //\n char -- 125
-    char packet[125];
-    packet[0] = '\t';
-    packet[1] = 'b';
-    packet[2] = ' ';
-    packet[3] = (i/10)+0x30;
-    packet[4] = (i%10)+0x30;
-    packet[5] = ' ';
-    int packet_idx = 6;
-    for (int i = 0; i < SIZE; i++) {
-      dtostrf(weights_i[i], 6, 4, packet+packet_idx);
-      packet[packet_idx+6] = ' ';
-      packet_idx += 7;
+
+    Serial.write("\tb ");
+    Serial.write(i/10+0x30);
+    Serial.write(i%10+0x30);
+    Serial.write(' ');
+    char *ptr = (char*) malloc(SIZE*sizeof(char));
+    for (int k = 0; k < SIZE; k++) {
+      dtostrf(weights_i[k], 6, 4, ptr);
+      ptr[6] = ' ';
+      Serial.write(ptr,7);
     }
-    for (int i = 0; i < SIZE; i++) {
-      dtostrf(biases_i[i], 6, 4, packet+packet_idx);
-      packet[packet_idx+6] = ' ';
-      packet_idx += 7;
+    for (int k = 0; k < SIZE; k++) {
+      dtostrf(biases_i[k], 6, 4, ptr);
+      ptr[6] = ' ';
+      Serial.write(ptr,7);
     }
-    dtostrf(int_freq_i, 6, 4, packet+packet_idx);
-    packet[packet_idx+6] = ' ';
-    packet_idx += 7;
-    dtostrf(init_phase_i, 6, 4, packet+packet_idx);
-    packet[packet_idx+6] = ' ';
-    packet_idx += 7;
-    dtostrf(tau, 6, 4, packet+packet_idx);
-    packet[packet_idx+6] = '\n';
-    
-    sendData(brainSerial, packet, 125);
+    dtostrf(int_freq_i, 6, 4, ptr);
+    ptr[6] = ' ';
+    Serial.write(ptr,7);
+    dtostrf(init_phase_i, 6, 4, ptr);
+    ptr[6] = ' ';
+    Serial.write(ptr,7);
+    dtostrf(tau_i, 6, 4, ptr);
+    ptr[6] = '\n';
+    Serial.write(ptr,7);
+    free(ptr);
+    delay(1000);
   }
+
+  
+  while(1);
 }
 
 void loop() {
 
-
-
-  
   
 
   
