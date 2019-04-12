@@ -1,5 +1,5 @@
 #include <RingBuf.h>
-#include "Serial_FL.cpp"
+#include "Serial_FL.h"
 #include "cpg.cpp"
 
 void setActuators(char packet[124], int &bi, int actuator_num);
