@@ -1,9 +1,17 @@
-#include "communication.cpp"
+#include <AltSoftSerial.h>
+#include <RingBuf.h>
+#include "Serial_FL.h"
+#include "communication.h"
 
 Actuator actuators [3];    // Oscillators 0, 5, 10
+AltSoftSerial altSerial;
+RingBuf *brain_buf = RingBuf_new(124 * sizeof(char), 1);
+RingBuf *seg_buf = RingBuf_new(14 * sizeof(char), 10);
 
 void setup() {
   Serial.begin(9600);
+  while(!Serial);
+  altSerial.begin(9600);
 
   // Hardcoding initial phases
   actuators[0].phase = 0.1;

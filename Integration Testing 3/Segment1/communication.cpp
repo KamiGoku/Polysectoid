@@ -1,18 +1,51 @@
 #include <RingBuf.h>
+#include <AltSoftSerial.h>
 #include "Serial_FL.h"
-#include "cpg.cpp"
+#include "communication.h"
 
-void setActuators(char packet[124], int &bi, int actuator_num);
-
-extern Actuator actuators[3];    // Oscillators 0, 5, 10
 bool actuators_set[3] = {false,false,false};
-AltSoftSerial altSerial;
-RingBuf *brain_buf = RingBuf_new(124 * sizeof(char), 1);
-RingBuf *seg_buf = RingBuf_new(14 * sizeof(char), 10);
-static int read_flag = 0;
+extern RingBuf *brain_buf;
+extern RingBuf *seg_buf;
+extern Actuator actuators[3];
+
+void setActuators(char packet[124], int &bi, int actuator_num) {
+  //2 digits to specify oscillator number 00-14 - 5
+  //space - 6 <--- we start off here
+  //7 weights -- decimal precision of 4, so x.xxxx 6 chars with a space after so 7, 7*7 = 49 -- 55
+  //7 biases -- same as weights, 6 chars+space, 7*7 = 49 -- 104
+  //1 freq -- 6+1 = 7 -- 111
+  //1 phase -- 6+1 = 7 -- 118
+  //1 tau -- 6+0 (no space needed) = 6 -- 124
+  //\n char -- 125
+  //subtract all the above by 1 since \t isn't included
+  //oscillators 0, 5, 10
+  bi++;
+  for (int i = 0; i < SIZE; i++) {
+    actuators[actuator_num].weights[i] = atof(packet+bi);
+    //1.2345 <-- start off pointing to 1, +6 to point at space after, +7 to point at next weight
+    bi += 7;
+  }
+  for (int i = 0; i < SIZE; i++) {
+    actuators[actuator_num].biases[i] = atof(packet+bi);
+    bi += 7;
+  }
+  actuators[actuator_num].int_freq = atof(packet+bi);
+  bi += 7;
+  actuators[actuator_num].phase = atof(packet+bi);
+  bi += 7;
+  actuators[actuator_num].tau = atof(packet+bi);
+  
+  actuators_set[actuator_num] = true;
+  
+  return;
+}
+
 
 void getBrainData(){
-    while(!actuators_set[0] || !actuators_set[1] || !actuators_set[2]){           // Break out once all 3 actuatos have received all data from brain
+   static int read_flag = 0;
+
+  // IMPORT ALL THE ABOVE VARIABLES HERE FROM BRAIN RAIYAN :)
+  while(!actuators_set[0] || !actuators_set[1] || !actuators_set[2]){           // Break out once all 3 actuatos have received all data from brain
     while (brain_buf->isEmpty(brain_buf)) {
       readData(Serial, read_flag);
     }
@@ -80,42 +113,6 @@ void getBrainData(){
   Serial.print(actuators[1].tau,4);
   Serial.write(", ");
   Serial.println(actuators[2].tau,4);
-  
-
-  
 }
 
-
-
-void setActuators(char packet[124], int &bi, int actuator_num) {
-  //2 digits to specify oscillator number 00-14 - 5
-  //space - 6 <--- we start off here
-  //7 weights -- decimal precision of 4, so x.xxxx 6 chars with a space after so 7, 7*7 = 49 -- 55
-  //7 biases -- same as weights, 6 chars+space, 7*7 = 49 -- 104
-  //1 freq -- 6+1 = 7 -- 111
-  //1 phase -- 6+1 = 7 -- 118
-  //1 tau -- 6+0 (no space needed) = 6 -- 124
-  //\n char -- 125
-  //subtract all the above by 1 since \t isn't included
-  //oscillators 0, 5, 10
-  bi++;
-  for (int i = 0; i < SIZE; i++) {
-    actuators[actuator_num].weights[i] = atof(packet+bi);
-    //1.2345 <-- start off pointing to 1, +6 to point at space after, +7 to point at next weight
-    bi += 7;
-  }
-  for (int i = 0; i < SIZE; i++) {
-    actuators[actuator_num].biases[i] = atof(packet+bi);
-    bi += 7;
-  }
-  actuators[actuator_num].int_freq = atof(packet+bi);
-  bi += 7;
-  actuators[actuator_num].phase = atof(packet+bi);
-  bi += 7;
-  actuators[actuator_num].tau = atof(packet+bi);
-  
-  actuators_set[actuator_num] = true;
-  
-  return;
-}
 
