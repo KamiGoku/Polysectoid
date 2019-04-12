@@ -1,14 +1,47 @@
 #include <Servo.h>
 
+#define pi2 6.28318530718
 Servo servoLeft;
 Servo servoRight;
+
+double phase = 0.0;
 
 void setup() {
   Serial.begin(9600);
   servoLeft.attach(4);
   servoRight.attach(5);
+  // put your setup code here, to run once:
+  cli(); //disable interrupts 
+  
+  //set timer2 interrupt at 1000Hz
+  //Timer2 interrupt is for transmitting 
+  TCCR2A = 0;// set entire TCCR2A register to 0
+  TCCR2B = 0;// same for TCCR2B
+  TCNT2  = 0;//initialize counter value to 0
+  // set compare match register for 1000hz increments
+  OCR2A = 249;// = (16*10^6) / (1000*64) - 1 (must be <256)
+  // turn on CTC mode
+  TCCR2A |= (1 << WGM21);
+  // Set CS22 bit for 64 prescaler
+  TCCR2B |= (1 << CS22); 
+  // enable timer compare interrupt
+  TIMSK2 |= (1 << OCIE2A);
+
+  sei(); //enable interrupts*/
 }
 
+ISR(TIMER2_COMPA_vect){//timer2 interrupt 1kHz 
+  static int timer2_cnt = 0;
+  timer2_cnt++;
+  if (timer2_cnt == 5) {
+    timer2_cnt = 0;
+    // actual content
+    int angle = (int)(30*cos(phase));
+    angle += 90;
+    servoLeft.write(angle);
+    servoRight.write(180-angle);
+  }
+}
 
 void loop() {
   //rotate_back_forth();
@@ -28,8 +61,8 @@ void loop() {
     
   } while (endTime > millis());
   //delay (500);*/
-  //cycle_phase();
-  rotate_offset();
+  cycle_phase2();
+  //rotate_offset();
 }
 
 
@@ -68,9 +101,11 @@ int rotate_offset(){
 }
 
 void cycle_phase() {
-  double phase = 0.0;
   while(1) {
     phase += 0.05;
+    if (phase > pi2) {
+      phase -= pi2;
+    }
     int angle = (int)(30*cos(phase));
     angle += 90;
     servoLeft.write(angle);
@@ -79,3 +114,12 @@ void cycle_phase() {
   }
 }
 
+void cycle_phase2() {
+  while(1) {
+    phase += 0.05;
+    if (phase > pi2) {
+      phase -= pi2;
+    }
+    delay(5);
+  }
+}
