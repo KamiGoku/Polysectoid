@@ -1,21 +1,25 @@
-#include "cpg.cpp"  
+#include <AltSoftSerial.h>
+#include <RingBuf.h>
+#include "Serial_FL.h"
+#include "communication.h"
 
 Actuator actuators [3];    // Oscillators 4, 9, 14
+AltSoftSerial altSerial;
+RingBuf *brain_buf = RingBuf_new(124 * sizeof(char), 1);
+RingBuf *seg_buf = RingBuf_new(14 * sizeof(char), 10);
 
 void setup() {
   Serial.begin(9600);
+  while(!Serial);
+  altSerial.begin(9600);
 
   // Hardcoding initial phases
   actuators[0].phase = 0.6;
   actuators[1].phase = 0.6;
   actuators[2].phase = 0.6;
 
-  // IMPORT ALL FIELDS FOR EACH ACTUATOR HERE
-  while(1){           // Break out once all 3 actuatos have received all data from brain
-
-
-    
-  }
+  // Importing brain data
+  getBrainData();       // Breaks out once all 3 actuators have received all data from brain
 
   delay(1000);      // Chill for a sec to make sure all other arduinos are ready
 }
@@ -45,19 +49,7 @@ void loop() {
     }
 
     // Step 2: Wait until each arduino has gotten phase data from the other 7 arduinos
-    for(int i = 0; i < 3; i++){
-      bool ready = false;
-      while(!ready){
-        // Read phase data here
-        receiveData();
-
-        
-        ready = true;
-        for(int j = 0; j < NUM; j++){
-          if(actuators[i].neighbor_phases[j] == 0){ready = false;};
-        }
-      }
-    }
+    readData();
     
 
     // Step 3: Update the phases of each arduino
@@ -67,16 +59,3 @@ void loop() {
 
     //Serial.print( (float) phase );    
 }
-
-// Send phase data to oscillator index
-void sendData(int index, float phase){
-
-
-  
-}
-
-// Receieve phase data from other oscillators
-void receiveData(){
-  
-}
-
