@@ -3,16 +3,21 @@
 #define pi2 6.28318530718
 Servo servoLeft;
 Servo servoRight;
+int leftMem = A0;
+int rightMem = A1;
 
 double phase = 0.0;
 
 void setup() {
   Serial.begin(9600);
-  servoLeft.attach(4);
-  servoRight.attach(5);
-  // put your setup code here, to run once:
-  cli(); //disable interrupts 
+  servoLeft.attach(6);
+  servoRight.attach(7);
+  pinMode(leftMem,OUTPUT);
+  pinMode(rightMem,OUTPUT);
+
+  digitalWrite(leftMem,HIGH);
   
+  cli(); //disable interrupts 
   //set timer2 interrupt at 1000Hz
   //Timer2 interrupt is for transmitting 
   TCCR2A = 0;// set entire TCCR2A register to 0
@@ -67,7 +72,7 @@ void loop() {
 
 
 
-void rotate_back_forth(){
+/*void rotate_back_forth(){
   for(int angle = 60; angle < 120; angle++){
     servoLeft.write(angle);
     servoRight.write(angle);
@@ -112,7 +117,7 @@ void cycle_phase() {
     servoRight.write(180-angle);
     delay(5);
   }
-}
+}*/
 
 void cycle_phase2() {
   while(1) {
