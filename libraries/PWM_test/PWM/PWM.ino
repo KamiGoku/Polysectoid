@@ -2,14 +2,14 @@
 #define activeperiod 5
 #define delayperiod 5
 
-int sensorPin1 = A1;                              // One of the sensors
+int sensorPin1 = 2;                              // One of the sensors
 int sensorPin2 = 3;                              // The other sensor in the same segment   
 
 int ledState1 = LOW;             // ledState used to set the LED
 
 const int duty_cycle = 9;
 const int active_cycle = activeperiod*1000/pulse_period; //time active
-int activecount = active_cycle/9;
+int activecount = active_cycle;
 
 bool left = true;
 bool active = true;
@@ -27,8 +27,6 @@ void setup() {
 }
 
 void loop() {
-    Serial.println(activecount);
-
 
     if(active){
       if(activecount){

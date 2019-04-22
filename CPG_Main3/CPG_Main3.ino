@@ -1,10 +1,16 @@
 #include "cpg.cpp"
 #include <PWM.h>
 #include <FastPID.h>
+#include <Servo.h>
+#include <math.h>
 
 float Kp=0.1, Ki=0, Kd=0.5, Hz=1000;
 int output_bits = 10;
 bool output_signed = true;
+int leftMem = 5;
+int rightMem = 4;
+Servo servoLeft;
+Servo servoRight;
 
 FastPID myPID(Kp, Ki, Kd, Hz, output_bits, output_signed);
 int inputPin = A0;                             
@@ -13,20 +19,45 @@ int pwmPin = 3;
 Actuator actuators[NUM*3];
 float phases[NUM*3];
 
+double PHASE_TEMP = 0.0;
+
+
 Brain b;
 
 void setup() {
   Serial.begin(9600);
   pinMode(inputPin, INPUT);
   pinMode(pwmPin, OUTPUT);
+  pinMode(leftMem,OUTPUT);
+  pinMode(rightMem,OUTPUT);
+  servoLeft.attach(6);
+  servoRight.attach(7);
 
- printTables();
+
+ //printTables();
 
   //Create 15 Oscillators
   for(int i = 0; i < NUM*3; i++){
     actuators[i].index = i;
     actuators[i].phase = init_phases[i];
   }
+
+  cli(); //disable interrupts 
+  //set timer2 interrupt at 1000Hz
+  //Timer2 interrupt is for transmitting 
+  TCCR2A = 0;// set entire TCCR2A register to 0
+  TCCR2B = 0;// same for TCCR2B
+  TCNT2  = 0;//initialize counter value to 0
+  // set compare match register for 1000hz increments
+  OCR2A = 249;// = (16*10^6) / (1000*64) - 1 (must be <256)
+  // turn on CTC mode
+  TCCR2A |= (1 << WGM21);
+  // Set CS22 bit for 64 prescaler
+  TCCR2B |= (1 << CS22); 
+  // enable timer compare interrupt
+  TIMSK2 |= (1 << OCIE2A);
+
+  sei(); //enable interrupts*/
 
 }
 void loop() {
@@ -58,18 +89,71 @@ void loop() {
     phases[i] = curr_phase;
     
     if(i == 0){
-      int expected = analogRead(inputPin);
-      expected = 500;
-      int actual = curr_phase*1024;
+      /*int expected = curr_phase*1024;
+      int actual = analogRead(inputPin);
+      //actual = 200;
       int output = myPID.step(expected, actual);
-      //printPID(expected, actual, output);
+      printPID(expected, actual, output);
       //Serial.print(actual);
       //Serial.println(output);
       pwmWrite(pwmPin, output);
+      if(output < -20){
+        digitalWrite(leftMem,HIGH);
+      }
+      else{
+        digitalWrite(leftMem,LOW);
+      }*/
+      
+      int expected = cos(curr_phase*2*M_PI)*55;// placeholder for actual CPG phase
+      PHASE_TEMP = 30*cos(curr_phase*2*M_PI);
+      
+      int actual = analogRead(inputPin);
+      actual -= 585;
+      int output = myPID.step(expected, actual);
+      printPID(expected, actual, output);
+      //Serial.print(actual);
+      //Serial.println(output);
+      pwmWrite(pwmPin, output);
+      if (expected - actual > 3){
+        digitalWrite(leftMem,HIGH);
+      } else {
+        digitalWrite(leftMem,LOW);
+      }
+      if (expected - actual < -3) {
+        digitalWrite(rightMem,HIGH);
+      } else {
+        digitalWrite(rightMem,LOW);
+      }
     }
 
-    graphPhases(i, curr_phase, true, false, false);
+    //graphPhases(i, curr_phase, true, false, false);
   } 
+
+  //cycle_phase2();
+}
+
+void cycle_phase2() {
+  PHASE_TEMP += 0.2;
+  if (PHASE_TEMP > M_PI*2) {
+    PHASE_TEMP -= M_PI*2;
+  }
+ 
+}
+
+
+
+
+ISR(TIMER2_COMPA_vect){//timer2 interrupt 1kHz 
+  static int timer2_cnt = 0;
+  timer2_cnt++;
+  if (timer2_cnt == 5) {
+    timer2_cnt = 0;
+    // actual content
+    int angle = PHASE_TEMP;//(int)(30*cos(PHASE_TEMP));
+    angle += 90;
+    servoLeft.write(angle);
+    servoRight.write(180-angle);
+  }
 }
 
 
@@ -80,8 +164,8 @@ void printPID(int expected, int actual, int output){
     Serial.print(F("Expected: "));
     Serial.print(expected);
     Serial.print(F("     Actual: "));
-    Serial.println(actual);
-    Serial.print(F("Output: "));
+    Serial.print(actual);
+    Serial.print(F("     Output: "));
     Serial.println(output);   
 }
 
@@ -142,4 +226,3 @@ void printTables(){
   }
   Serial.println(F(" ")); 
 }
-
