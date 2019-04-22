@@ -15,8 +15,12 @@
 extern RingBuf *brain_buf;
 extern RingBuf *seg_buf;
 
-void sendData(AltSoftSerial &serialTwo, char packet[PACKET_SIZE+1]){
-  serialTwo.write(packet, PACKET_SIZE+1);
+void sendData(AltSoftSerial &serialTwo, char *packet, int packetsize){
+  char packet_[125];
+  memcpy(packet_+1, packet, packetsize);
+  packet_[0] = '\t';
+  //Serial.write(packet,125);
+  serialTwo.write(packet_, packetsize);
 }
 
 void processData(RingBuf *buf) {

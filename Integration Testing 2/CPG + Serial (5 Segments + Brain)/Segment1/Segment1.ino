@@ -8,6 +8,7 @@ bool actuators_set[3] = {false,false,false};
 AltSoftSerial altSerial;
 RingBuf *brain_buf = RingBuf_new(124 * sizeof(char), 1);
 RingBuf *seg_buf = RingBuf_new(14 * sizeof(char), 10);
+int actuator_count = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -23,10 +24,11 @@ void setup() {
   static int read_flag = 0;
 
   // IMPORT ALL THE ABOVE VARIABLES HERE FROM BRAIN RAIYAN :)
-  while(!actuators_set[0] || !actuators_set[1] || !actuators_set[2]){           // Break out once all 3 actuatos have received all data from brain
+  while(!actuators_set[0] || !actuators_set[1] || !actuators_set[2] || actuator_count < 15){           // Break out once all 3 actuatos have received all data from brain
     while (brain_buf->isEmpty(brain_buf)) {
-      readData(Serial, read_flag);
+      readData(altSerial, read_flag);
     }
+
     //\t character to start - 1
     //'b' to specify brain (alternatively 's' will specify segment elsewhere) - 2
     //space - 3
@@ -46,14 +48,21 @@ void setup() {
     if (brain_packet[brain_idx] == 'b') {//just to verify
       brain_idx += 4;
       if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '0') {
+        Serial.write("ACTUATOR 00\n");
+        actuator_count++;
         setActuators(brain_packet, brain_idx, 0);
       } else if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '5') {
+        Serial.write("ACTUATOR 05\n");
+        actuator_count++;
         setActuators(brain_packet, brain_idx, 1);
       } else if (brain_packet[brain_idx-2] == '1' && brain_packet[brain_idx-1] == '0') {
+        Serial.write("ACTUATOR 10\n");
+        actuator_count++;
         setActuators(brain_packet, brain_idx, 2);
-      }
-      else {
+      } else {
+        actuator_count++;
         //send these values off to the next arduino
+        sendData(altSerial, brain_packet, 125);
       }
     }
     free(brain_packet);
