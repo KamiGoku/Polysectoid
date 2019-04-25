@@ -15,7 +15,7 @@
 extern RingBuf *brain_buf;
 extern RingBuf *seg_buf;
 
-void sendData(AltSoftSerial &serialTwo, char *packet, int packetsize){
+void sendData(Stream &serialTwo, char *packet, int packetsize){
   char packet_[125];
   memcpy(packet_+1, packet, packetsize);
   packet_[0] = '\t';
@@ -34,7 +34,7 @@ void processData(RingBuf *buf) {
 //change this so input is of size 124
 //change it to take buf_size as an argument, or make buf_size a global
 void processIncomingByte(byte inByte, int &read_flag, int buf_size){
-  static char s_input[14];
+  static char s_input[13];
   static char input[124];
   static uint32_t input_idx = 0;
 
@@ -54,7 +54,7 @@ void processIncomingByte(byte inByte, int &read_flag, int buf_size){
         Serial.write(arr,124);
         while(1);*/
       } else {
-        memcpy(s_input, input, 14);
+        memcpy(s_input, input, 13);
         seg_buf->add(seg_buf, &s_input);
       }
       //processData(buf);//just putting this here for now, maybe we'll call it somewhere else idk
@@ -85,7 +85,7 @@ void readData(Stream &serialTwo, int &read_flag){
     char c = serialTwo.read();
     if (read_flag == 2){
       if (c == 's') {
-        buf_size = 14;
+        buf_size = 13;
         read_flag = 1;
       }
       else if (c == 'b') {

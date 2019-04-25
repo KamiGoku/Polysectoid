@@ -6,7 +6,9 @@
 bool actuators_set[3] = {false,false,false};
 extern RingBuf *brain_buf;
 extern RingBuf *seg_buf;
+extern AltSoftSerial altSerial;
 extern Actuator actuators[3];
+int actuator_count = 0;
 
 void setActuators(char packet[124], int &bi, int actuator_num) {
   //2 digits to specify oscillator number 00-14 - 5
@@ -45,34 +47,31 @@ void getBrainData(){
    static int read_flag = 0;
 
   // IMPORT ALL THE ABOVE VARIABLES HERE FROM BRAIN RAIYAN :)
-  while(!actuators_set[0] || !actuators_set[1] || !actuators_set[2]){           // Break out once all 3 actuatos have received all data from brain
+  while(!actuators_set[0] || !actuators_set[1] || !actuators_set[2] || actuator_count < 6){           // Break out once all 3 actuatos have received all data from brain
     while (brain_buf->isEmpty(brain_buf)) {
-      readData(Serial, read_flag);
+      readData(altSerial, read_flag, 1);
     }
-    //\t character to start - 1
-    //'b' to specify brain (alternatively 's' will specify segment elsewhere) - 2
-    //space - 3
-    //2 digits to specify oscillator number 00-14 - 5
-    //space - 6
-    //7 weights -- decimal precision of 4, so x.xxxx 6 chars with a space after so 7, 7*7 = 49 -- 55
-    //7 biases -- same as weights, 6 chars+space, 7*7 = 49 -- 104
-    //1 freq -- 6+1 = 7 -- 111
-    //1 phase -- 6+1 = 7 -- 118
-    //1 tau -- 6+0 (no space needed) = 6 -- 124
-    //\n char -- 125
-    //subtract all the above by 1 since \t isn't included
-    //oscillators 0, 5, 10
+
     char *brain_packet = (char *) malloc(124*sizeof(char));
     brain_buf->pull(brain_buf, brain_packet);
     int brain_idx = 0;
     if (brain_packet[brain_idx] == 'b') {//just to verify
       brain_idx += 4;
-      if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '0') {
+      if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '3') {
+        Serial.write("ACTUATOR 03\n");
+        actuator_count++;
         setActuators(brain_packet, brain_idx, 0);
-      } else if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '5') {
+      } else if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '8') {
+        Serial.write("ACTUATOR 08\n");
+        actuator_count++;
         setActuators(brain_packet, brain_idx, 1);
-      } else if (brain_packet[brain_idx-2] == '1' && brain_packet[brain_idx-1] == '0') {
+      } else if (brain_packet[brain_idx-2] == '1' && brain_packet[brain_idx-1] == '3') {
+        Serial.write("ACTUATOR 13\n");
+        actuator_count++;
         setActuators(brain_packet, brain_idx, 2);
+      } else {
+        actuator_count++;
+        sendData(altSerial, brain_packet, 125);
       }
     }
     free(brain_packet);

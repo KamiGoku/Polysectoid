@@ -1,12 +1,14 @@
 #include <RingBuf.h>
 #include <AltSoftSerial.h>
-#include "Serial_FL.h"
+#include "Serial_IB.h"
 #include "communication.h"
 
 bool actuators_set[3] = {false,false,false};
 extern RingBuf *brain_buf;
 extern RingBuf *seg_buf;
+extern AltSoftSerial altSerial;
 extern Actuator actuators[3];
+int actuator_count = 0;
 
 void setActuators(char packet[124], int &bi, int actuator_num) {
   //2 digits to specify oscillator number 00-14 - 5
@@ -45,9 +47,9 @@ void getBrainData(){
    static int read_flag = 0;
 
   // IMPORT ALL THE ABOVE VARIABLES HERE FROM BRAIN RAIYAN :)
-  while(!actuators_set[0] || !actuators_set[1] || !actuators_set[2]){           // Break out once all 3 actuatos have received all data from brain
+  while(!actuators_set[0] || !actuators_set[1] || !actuators_set[2] || actuator_count < 12){           // Break out once all 3 actuatos have received all data from brain
     while (brain_buf->isEmpty(brain_buf)) {
-      readData(Serial, read_flag);
+      readData(altSerial, read_flag, 1);
     }
     //\t character to start - 1
     //'b' to specify brain (alternatively 's' will specify segment elsewhere) - 2
@@ -67,12 +69,21 @@ void getBrainData(){
     int brain_idx = 0;
     if (brain_packet[brain_idx] == 'b') {//just to verify
       brain_idx += 4;
-      if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '0') {
+      if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '1') {
+        Serial.write("ACTUATOR 01\n");
+        actuator_count++;
         setActuators(brain_packet, brain_idx, 0);
-      } else if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '5') {
+      } else if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '6') {
+        Serial.write("ACTUATOR 06\n");
+        actuator_count++;
         setActuators(brain_packet, brain_idx, 1);
-      } else if (brain_packet[brain_idx-2] == '1' && brain_packet[brain_idx-1] == '0') {
+      } else if (brain_packet[brain_idx-2] == '1' && brain_packet[brain_idx-1] == '1') {
+        Serial.write("ACTUATOR 11\n");
+        actuator_count++;
         setActuators(brain_packet, brain_idx, 2);
+      } else {
+        actuator_count++;
+        sendData(altSerial, brain_packet, 125);
       }
     }
     free(brain_packet);

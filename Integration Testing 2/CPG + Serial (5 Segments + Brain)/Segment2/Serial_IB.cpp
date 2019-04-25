@@ -136,11 +136,11 @@ void processIncomingByte(byte inByte, int which_buf, int &read_flag, int buf_siz
  * TODO: try changing the function definition to take two "Stream" parameters, that way the caller
  * could just swap their places depending on which is the reader/writer. Not that important rn tho.
  */
-void readARX(Stream &serialOne, Stream /*AltSoftSerial*/ &serialTwo, int &read_flag){
+/*void readARX(Stream &serialOne, Stream /*AltSoftSerial &serialTwo, int &read_flag){
   static int buf_size = 0;
   /*if (serialTwo.available() > 0){
     Serial.write("ESKETIT\n");
-  }*/
+  }
   while(serialTwo.available() > 0){
     char c = serialTwo.read();
     if (read_flag == 2){//brain data always received via AltSoftSerial
@@ -167,7 +167,7 @@ void readARX(Stream &serialOne, Stream /*AltSoftSerial*/ &serialTwo, int &read_f
       read_flag = 2;
     }
   }
-}
+}*/
 
 void readData(Stream &serialOne, int &read_flag, int which_buf){
   static int buf_size = 0;
@@ -201,7 +201,7 @@ void readData(Stream &serialOne, int &read_flag, int which_buf){
 /*
  * Same as readARX but reads from hardware Serial port.
  */
-void readTRX(Stream &serialOne, AltSoftSerial &serialTwo, int &read_flag, RingBuf *buf){
+/*void readTRX(Stream &serialOne, AltSoftSerial &serialTwo, int &read_flag, RingBuf *buf){
   while(serialOne.available() > 0){
     char c = serialOne.read();
     if (read_flag == 1){
@@ -215,4 +215,4 @@ void readTRX(Stream &serialOne, AltSoftSerial &serialTwo, int &read_flag, RingBu
       read_flag = 1;
     }
   }
-}
+}*/

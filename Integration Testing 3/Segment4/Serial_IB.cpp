@@ -27,7 +27,7 @@ extern RingBuf *seg_buf;
  * TODO: try changing the func def to take two "Stream" parameters, then we can do away with the "which_serial"
  * crap and just swap the places of the streams as necessary. Not really a big deal though.
  */
-void sendData(int which_serial, Stream &serialOne, Stream /*AltSoftSerial*/ &serialTwo, RingBuf *buf) {
+/*void sendData(int which_serial, Stream &serialOne, Stream /*AltSoftSerial &serialTwo, RingBuf *buf) {
   while(!buf->isEmpty(buf)){
       char packet[125];
       char *packet_ptr = packet+1;
@@ -41,6 +41,14 @@ void sendData(int which_serial, Stream &serialOne, Stream /*AltSoftSerial*/ &ser
       }
     }
   return;
+}*/
+
+void sendData(Stream &serialTwo, char *packet, int packetsize){
+  char packet_[125];
+  memcpy(packet_+1, packet, packetsize);
+  packet_[0] = '\t';
+  //Serial.write(packet,125);
+  serialTwo.write(packet_, packetsize);
 }
 
 /*
@@ -199,7 +207,7 @@ void readData(Stream &serialOne, int &read_flag, int which_buf){
     if (read_flag == 1){
       processIncomingByte(c, 2, read_flag, buf);
       if (c == '\n'){
-        sendData(1, serialOne, serialTwo, buf);
+        //sendData(1, serialOne, serialTwo, buf);
         break;
       }
     }

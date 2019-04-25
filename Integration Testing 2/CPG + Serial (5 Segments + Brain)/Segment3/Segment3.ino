@@ -48,6 +48,7 @@ void setup() {
       } else {
         actuator_count++;
         //send these values off to the next arduino
+        sendData(altSerial, brain_packet, 125);
       }
     }
     free(brain_packet);

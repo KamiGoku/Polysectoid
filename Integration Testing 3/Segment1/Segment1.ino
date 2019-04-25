@@ -31,25 +31,25 @@ void loop() {
         actuators[0].neighbor_phases[0] = actuators[i].phase;
         actuators[1].neighbor_phases[5] = actuators[i].phase;
         actuators[2].neighbor_phases[5] = actuators[i].phase;
-        sendData(0,actuators[i].phase);
+        sendPhaseData(0,actuators[i].phase);
       }
       else if(i == 1){
         actuators[0].neighbor_phases[5] = actuators[i].phase;
         actuators[1].neighbor_phases[0] = actuators[i].phase;
         actuators[2].neighbor_phases[6] = actuators[i].phase;
-        sendData(5,actuators[i].phase);        
+        sendPhaseData(5,actuators[i].phase);        
       }
       else{
         actuators[0].neighbor_phases[6] = actuators[i].phase;
         actuators[1].neighbor_phases[6] = actuators[i].phase;
         actuators[2].neighbor_phases[0] = actuators[i].phase;
-        sendData(10,actuators[i].phase);          
+        sendPhaseData(10,actuators[i].phase);          
       }
       
     }
 
     // Step 2: Wait until each arduino has gotten phase data from the other 7 arduinos
-    readData();
+    readPhaseData();
     
 
     // Step 3: Update the phases of each arduino

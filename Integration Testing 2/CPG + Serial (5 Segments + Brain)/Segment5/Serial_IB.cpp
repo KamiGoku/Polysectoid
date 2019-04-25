@@ -27,7 +27,7 @@ extern RingBuf *seg_buf;
  * TODO: try changing the func def to take two "Stream" parameters, then we can do away with the "which_serial"
  * crap and just swap the places of the streams as necessary. Not really a big deal though.
  */
-void sendData(int which_serial, Stream &serialOne, Stream /*AltSoftSerial*/ &serialTwo, RingBuf *buf) {
+/*void sendData(int which_serial, Stream &serialOne, Stream /*AltSoftSerial &serialTwo, RingBuf *buf) {
   while(!buf->isEmpty(buf)){
       char packet[125];
       char *packet_ptr = packet+1;
@@ -41,6 +41,14 @@ void sendData(int which_serial, Stream &serialOne, Stream /*AltSoftSerial*/ &ser
       }
     }
   return;
+}*/
+
+void sendData(Stream &serialTwo, char *packet, int packetsize){
+  char packet_[125];
+  memcpy(packet_+1, packet, packetsize);
+  packet_[0] = '\t';
+  //Serial.write(packet,125);
+  serialTwo.write(packet_, packetsize);
 }
 
 /*
@@ -128,11 +136,11 @@ void processIncomingByte(byte inByte, int which_buf, int &read_flag, int buf_siz
  * TODO: try changing the function definition to take two "Stream" parameters, that way the caller
  * could just swap their places depending on which is the reader/writer. Not that important rn tho.
  */
-void readARX(Stream &serialOne, Stream /*AltSoftSerial*/ &serialTwo, int &read_flag){
+/*void readARX(Stream &serialOne, Stream /*AltSoftSerial &serialTwo, int &read_flag){
   static int buf_size = 0;
   /*if (serialTwo.available() > 0){
     Serial.write("ESKETIT\n");
-  }*/
+  }
   while(serialTwo.available() > 0){
     char c = serialTwo.read();
     if (read_flag == 2){//brain data always received via AltSoftSerial
@@ -159,7 +167,7 @@ void readARX(Stream &serialOne, Stream /*AltSoftSerial*/ &serialTwo, int &read_f
       read_flag = 2;
     }
   }
-}
+}*/
 
 void readData(Stream &serialOne, int &read_flag, int which_buf){
   static int buf_size = 0;
@@ -193,13 +201,13 @@ void readData(Stream &serialOne, int &read_flag, int which_buf){
 /*
  * Same as readARX but reads from hardware Serial port.
  */
-void readTRX(Stream &serialOne, AltSoftSerial &serialTwo, int &read_flag, RingBuf *buf){
+/*void readTRX(Stream &serialOne, AltSoftSerial &serialTwo, int &read_flag, RingBuf *buf){
   while(serialOne.available() > 0){
     char c = serialOne.read();
     if (read_flag == 1){
       processIncomingByte(c, 2, read_flag, buf);
       if (c == '\n'){
-        sendData(1, serialOne, serialTwo, buf);
+        //sendData(1, serialOne, serialTwo, buf);
         break;
       }
     }
@@ -207,4 +215,4 @@ void readTRX(Stream &serialOne, AltSoftSerial &serialTwo, int &read_flag, RingBu
       read_flag = 1;
     }
   }
-}
+}*/
