@@ -168,7 +168,7 @@ void readPhaseData(){
   //0111 1011 1101 1110 --> 0x7BDE
   uint16_t listening = 0;
   
-  while(!(listening & 0x7BDE)) {
+  while(listening != 0x7BDE) {
     while(seg_buf->isEmpty(seg_buf)){
       readData(altSerial, read_flag);
     }
