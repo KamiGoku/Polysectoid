@@ -6,7 +6,7 @@
 Actuator actuators [3];    // Oscillators 1, 6, 11
 AltSoftSerial altSerial;
 RingBuf *brain_buf = RingBuf_new(124 * sizeof(char), 1);
-RingBuf *seg_buf = RingBuf_new(14 * sizeof(char), 10);
+RingBuf *seg_buf = RingBuf_new(13 * sizeof(char), 10);
 
 void setup() {
   Serial.begin(9600);
@@ -31,25 +31,32 @@ void loop() {
         actuators[0].neighbor_phases[0] = actuators[i].phase;
         actuators[1].neighbor_phases[5] = actuators[i].phase;
         actuators[2].neighbor_phases[5] = actuators[i].phase;
-        sendData(1,actuators[i].phase);
+        sendPhaseData(1,actuators[i].phase);
       }
       else if(i == 1){
         actuators[0].neighbor_phases[5] = actuators[i].phase;
         actuators[1].neighbor_phases[0] = actuators[i].phase;
         actuators[2].neighbor_phases[6] = actuators[i].phase;
-        sendData(6,actuators[i].phase);        
+        sendPhaseData(6,actuators[i].phase);        
       }
       else{
         actuators[0].neighbor_phases[6] = actuators[i].phase;
         actuators[1].neighbor_phases[6] = actuators[i].phase;
         actuators[2].neighbor_phases[0] = actuators[i].phase;
-        sendData(11,actuators[i].phase);          
+        sendPhaseData(11,actuators[i].phase);          
       }
       
     }
 
     // Step 2: Wait until each arduino has gotten phase data from the other 7 arduinos
-    readData();
+    readPhaseData();
+
+    Serial.write("ACTUATOR 1 NEIGHBOR PHASE: ");
+    Serial.println(actuators[0].neighbor_phases[1]);
+    Serial.write("ACTUATOR 6 NEIGHBOR PHASE: ");
+    Serial.println(actuators[1].neighbor_phases[1]);
+    Serial.write("ACTUATOR 11 NEIGHBOR PHASE: ");
+    Serial.println(actuators[2].neighbor_phases[1]);
     
 
     // Step 3: Update the phases of each arduino

@@ -51,6 +51,7 @@ void getBrainData(){
     while (brain_buf->isEmpty(brain_buf)) {
       readData(altSerial, read_flag, 1);
     }
+    
     //\t character to start - 1
     //'b' to specify brain (alternatively 's' will specify segment elsewhere) - 2
     //space - 3
@@ -124,12 +125,24 @@ void getBrainData(){
   Serial.print(actuators[1].tau,4);
   Serial.write(", ");
   Serial.println(actuators[2].tau,4);
+  //while(1);
 }
 
 // Sends data to all other 4 arduinos.
 // from: index of actuator that corresponds to phase 
-void sendData(int from, float phase){
-
+void sendPhaseData(int from, float phase){
+  char *ptr = (char*) malloc(13*sizeof(char));
+  ptr[0] = 's';
+  ptr[1] = ' ';
+  ptr[2] = (from/10)+0x30;
+  ptr[3] = (from%10)+0x30;
+  ptr[4] = ' ';
+  dtostrf(phase, 6, 4, ptr+5);
+  ptr[12] = '\n';
+  //Segment 1 hardware TX, rest alt TX
+  sendData(Serial, ptr, 14);
+  sendData(altSerial, ptr, 14);
+  free(ptr);
   
 }
 
@@ -137,8 +150,48 @@ void sendData(int from, float phase){
 // Actuator 0 is listening for actuators 0,2,3,4
 // Actuator 1 is listening for actuators 5,7,8,9
 // Actuator 2 is listening for actuators 10,12,13,14
-void readData(){
-  
+void readPhaseData(){
+  //listening from hardware RX for segment1, alt RX for rest
+  static int read_flag = 0;
 
+  //bits 0, 2-5, 7-10, 12-14 will be set when all data received
+  //0111 0111 1011 1101 --> 0x77BD
+  uint16_t listening = 0;
+
+  //for the time being we're only testing with seg1 and seg2,
+  //so we'll only block for actuators 0,5,10
+  //0111 0011 1001 1100 --> 0x739C
+  listening |= 0x739C;
+
+  while(listening != 0x77BD){
+    while(seg_buf->isEmpty(seg_buf)){
+      //altSerial "which_buf" == 1
+      //Serial "which_buf" == 2
+      readData(altSerial, read_flag, 1);
+      readData(Serial, read_flag, 2);
+    }
+    while(!seg_buf->isEmpty(seg_buf)){
+      char *phase_data = (char *) malloc(13*sizeof(char));
+      seg_buf->pull(seg_buf, phase_data);
+      if (phase_data[0] == 's'){
+        int from = atoi(phase_data+2);
+        //I don't remember where the phases go so I'm gonna assume
+        //e.g. in 1's case: self,0,2,3,4,5,10
+        if (from < 5){
+          if (from == 0) actuators[0].neighbor_phases[1] = atof(phase_data+5);
+          else actuators[0].neighbor_phases[from] = atof(phase_data+5);
+        } else if (from < 10){
+          if (from == 5) actuators[1].neighbor_phases[1] = atof(phase_data+5);
+          else actuators[1].neighbor_phases[from-5] = atof(phase_data+5);
+        } else {
+          if (from == 10) actuators[2].neighbor_phases[1] = atof(phase_data+5);
+          else actuators[2].neighbor_phases[from-10] = atof(phase_data+5);
+        }
+        listening |= (1 << from);
+      }
+      free(phase_data);
+    }
+  }
+  
   
 }

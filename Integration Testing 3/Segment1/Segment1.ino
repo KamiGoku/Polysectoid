@@ -6,7 +6,7 @@
 Actuator actuators [3];    // Oscillators 0, 5, 10
 AltSoftSerial altSerial;
 RingBuf *brain_buf = RingBuf_new(124 * sizeof(char), 1);
-RingBuf *seg_buf = RingBuf_new(14 * sizeof(char), 10);
+RingBuf *seg_buf = RingBuf_new(13 * sizeof(char), 10);
 
 void setup() {
   Serial.begin(9600);
@@ -50,7 +50,13 @@ void loop() {
 
     // Step 2: Wait until each arduino has gotten phase data from the other 7 arduinos
     readPhaseData();
-    
+
+    Serial.write("ACTUATOR 0 NEIGHBOR PHASE: ");
+    Serial.println(actuators[0].neighbor_phases[1]);
+    Serial.write("ACTUATOR 5 NEIGHBOR PHASE: ");
+    Serial.println(actuators[1].neighbor_phases[1]);
+    Serial.write("ACTUATOR 10 NEIGHBOR PHASE: ");
+    Serial.println(actuators[2].neighbor_phases[1]);
 
     // Step 3: Update the phases of each arduino
     for(int i = 0; i < 3; i++){

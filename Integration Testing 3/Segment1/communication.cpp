@@ -125,6 +125,7 @@ void getBrainData(){
   Serial.print(actuators[1].tau,4);
   Serial.write(", ");
   Serial.println(actuators[2].tau,4);
+  //while(1);
 }
 
 // Sends data to all other 4 arduinos.
@@ -154,6 +155,7 @@ void sendPhaseData(int from, float phase){
   ptr[12] = '\n';
   //Segment 1 will send everything down one direction
   sendData(altSerial, ptr, 14);
+  free(ptr);
 }
 
 
@@ -167,6 +169,11 @@ void readPhaseData(){
   //bits 1-4, 6-9, 11-14 will be set when all data received
   //0111 1011 1101 1110 --> 0x7BDE
   uint16_t listening = 0;
+
+  //for the time being we're only testing with seg1 and seg2,
+  //so we'll only block for actuators 1,6,11
+  //0111 0011 1001 1100 --> 0x739C
+  listening |= 0x739C;
   
   while(listening != 0x7BDE) {
     while(seg_buf->isEmpty(seg_buf)){

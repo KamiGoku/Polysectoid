@@ -63,9 +63,9 @@ void sendData(Stream &serialTwo, char *packet, int packetsize){
  */
 void processIncomingByte(byte inByte, int which_buf, int &read_flag, int buf_size){
   static char input[124];
-  static char s_input[14];
+  static char s_input[13];
   static char input2[124];
-  static char s_input2[14];
+  static char s_input2[13];
   static uint32_t input_idx = 0;
   static uint32_t input_idx2 = 0;
 
@@ -82,7 +82,7 @@ void processIncomingByte(byte inByte, int which_buf, int &read_flag, int buf_siz
         if (buf_size == 124) {
           brain_buf->add(brain_buf, &input);
         } else {
-          memcpy(s_input, input, 14);
+          memcpy(s_input, input, 13);
           seg_buf->add(seg_buf, &s_input);
         }
         input_idx = 0;
@@ -99,7 +99,7 @@ void processIncomingByte(byte inByte, int which_buf, int &read_flag, int buf_siz
         if (buf_size == 124) {
           brain_buf->add(brain_buf, &input2);
         } else {
-          memcpy(s_input2, input, 14);
+          memcpy(s_input2, input, 13);
           seg_buf->add(seg_buf, &s_input2);
         }
         input_idx2 = 0;
@@ -175,7 +175,7 @@ void readData(Stream &serialOne, int &read_flag, int which_buf){
     char c = serialOne.read();
     if (read_flag == 2){
       if (c == 's'){
-        buf_size = 14;
+        buf_size = 13;
         read_flag = 1;
       }
       else if (c == 'b'){

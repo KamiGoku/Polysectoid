@@ -171,6 +171,7 @@ void processIncomingByte(byte inByte, int which_buf, int &read_flag, int buf_siz
 
 void readData(Stream &serialOne, int &read_flag, int which_buf){
   static int buf_size = 0;
+  if (serialOne.available() > 0) Serial.write("zzz\n");
   while (serialOne.available() > 0){
     char c = serialOne.read();
     if (read_flag == 2){
