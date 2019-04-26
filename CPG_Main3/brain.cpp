@@ -36,7 +36,7 @@ const float int_freq[15] = {0.02, 0.02, 0.02, 0.02, 0.02, 0.01, 0.01, 0.01, 0.01
 
 const float init_phases [15] = {.1, .7, .8, .23, .6, .42, .7, .9, .8, .6, .73, .7, .5, .44, .6};
 
-const float tau = 2;                                // Frequency parameter
+const float tau = 3.2;                                // Frequency parameter
 
 
 class Brain {
@@ -92,4 +92,3 @@ public:
     }    
 	} 
 };
-
