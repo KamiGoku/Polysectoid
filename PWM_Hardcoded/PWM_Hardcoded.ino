@@ -10,8 +10,8 @@ double phase = 0.0;
 
 void setup() {
   Serial.begin(9600);
-  servoLeft.attach(6);
-  servoRight.attach(7);
+  servoLeft.attach(4);
+  servoRight.attach(6);
   pinMode(leftMem,OUTPUT);
   pinMode(rightMem,OUTPUT);
 
@@ -41,10 +41,10 @@ ISR(TIMER2_COMPA_vect){//timer2 interrupt 1kHz
   if (timer2_cnt == 5) {
     timer2_cnt = 0;
     // actual content
-    int angle = (int)(30*cos(phase));
+    int angle = (int)(15*cos(phase));
     angle += 90;
     servoLeft.write(angle);
-    servoRight.write(180-angle);
+    servoRight.write(angle);
   }
 }
 

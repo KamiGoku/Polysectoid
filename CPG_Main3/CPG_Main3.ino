@@ -31,7 +31,7 @@ void setup() {
   pinMode(leftMem,OUTPUT);
   pinMode(rightMem,OUTPUT);
   servoLeft.attach(4);
-  servoRight.attach(5);
+  servoRight.attach(6);
 
 
  //printTables();
@@ -105,7 +105,7 @@ void loop() {
       }*/
       
       int expected = cos(curr_phase*2*M_PI)*60;// placeholder for actual CPG phase
-      PHASE_TEMP = 15*cos(3*curr_phase*2*M_PI);
+      PHASE_TEMP = 15*cos(6*curr_phase*2*M_PI);
       
       int actual = analogRead(inputPin);
       actual -= 495;
@@ -116,18 +116,18 @@ void loop() {
       pwmWrite(pwmPin, output);
       // TODO switch back to output
       actual = 0;
-      if (/*output > 2*/ expected - actual > 5){
+      if (/*output > 2*/ expected - actual > 10){
         digitalWrite(leftMem,HIGH);
       } else {
         digitalWrite(leftMem,LOW);
       }
-      if (/*output < -2*/ expected - actual < -5) {
+      if (/*output < -2*/ expected - actual < -10) {
         digitalWrite(rightMem,HIGH);
       } else {
         digitalWrite(rightMem,LOW);
       }
     }
-    delay(5);
+    //delay(5);
     //graphPhases(i, curr_phase, true, false, false);
   } 
 
@@ -151,7 +151,7 @@ ISR(TIMER2_COMPA_vect){//timer2 interrupt 1kHz
   if (timer2_cnt == 5) {
     timer2_cnt = 0;
     // actual content
-    int angle = PHASE_TEMP;//(int)(30*cos(PHASE_TEMP));
+    int angle = PHASE_TEMP;//(int)(30*cos(PHASE_TEMP)); 75 - 105
     angle += 90;
     servoLeft.write(angle);
     servoRight.write(angle);
