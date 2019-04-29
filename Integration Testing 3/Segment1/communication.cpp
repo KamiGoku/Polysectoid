@@ -1,6 +1,6 @@
 #include <RingBuf.h>
 #include <AltSoftSerial.h>
-#include "Serial_FL.h"
+#include "Serial_IB.h"
 #include "communication.h"
 
 bool actuators_set[3] = {false,false,false};
@@ -49,7 +49,7 @@ void getBrainData(){
   // IMPORT ALL THE ABOVE VARIABLES HERE FROM BRAIN RAIYAN :)
   while(!actuators_set[0] || !actuators_set[1] || !actuators_set[2] || actuator_count < 15){           // Break out once all 3 actuatos have received all data from brain
     while (brain_buf->isEmpty(brain_buf)) {
-      readData(altSerial, read_flag);
+      readData(altSerial, read_flag, 1);
     }
     //\t character to start - 1
     //'b' to specify brain (alternatively 's' will specify segment elsewhere) - 2
@@ -177,11 +177,14 @@ void readPhaseData(){
   
   while(listening != 0x7BDE) {
     while(seg_buf->isEmpty(seg_buf)){
-      readData(altSerial, read_flag);
+      readData(Serial, read_flag, 2);
     }
+    Serial.write("WE OUT\n");
     while(!seg_buf->isEmpty(seg_buf)){
       char *phase_data = (char *) malloc(13*sizeof(char));
       seg_buf->pull(seg_buf, phase_data);
+      Serial.write(phase_data,13);
+      Serial.println();
       if (phase_data[0] == 's'){//verify that it is indeed phase data
         //who is it from
         int from = atoi(phase_data+2);

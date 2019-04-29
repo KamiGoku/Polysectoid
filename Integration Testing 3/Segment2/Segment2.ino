@@ -51,18 +51,18 @@ void loop() {
     // Step 2: Wait until each arduino has gotten phase data from the other 7 arduinos
     readPhaseData();
 
-    Serial.write("ACTUATOR 1 NEIGHBOR PHASE: ");
+    /*Serial.write("ACTUATOR 1 NEIGHBOR PHASE: ");
     Serial.println(actuators[0].neighbor_phases[1]);
     Serial.write("ACTUATOR 6 NEIGHBOR PHASE: ");
     Serial.println(actuators[1].neighbor_phases[1]);
     Serial.write("ACTUATOR 11 NEIGHBOR PHASE: ");
-    Serial.println(actuators[2].neighbor_phases[1]);
+    Serial.println(actuators[2].neighbor_phases[1]);*/
     
 
     // Step 3: Update the phases of each arduino
     for(int i = 0; i < 3; i++){
       actuators[i].update_phase();
     }
-
+    while(1);
     //Serial.print( (float) phase );    
 }

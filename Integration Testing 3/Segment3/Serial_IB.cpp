@@ -99,7 +99,7 @@ void processIncomingByte(byte inByte, int which_buf, int &read_flag, int buf_siz
         if (buf_size == 124) {
           brain_buf->add(brain_buf, &input2);
         } else {
-          memcpy(s_input2, input, 13);
+          memcpy(s_input2, input2, 13);
           seg_buf->add(seg_buf, &s_input2);
         }
         input_idx2 = 0;

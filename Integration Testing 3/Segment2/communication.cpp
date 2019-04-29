@@ -71,27 +71,27 @@ void getBrainData(){
     if (brain_packet[brain_idx] == 'b') {//just to verify
       brain_idx += 4;
       if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '1') {
-        Serial.write("ACTUATOR 01\n");
+        //Serial.write("ACTUATOR 01\n");
         actuator_count++;
         setActuators(brain_packet, brain_idx, 0);
       } else if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '6') {
-        Serial.write("ACTUATOR 06\n");
+        //Serial.write("ACTUATOR 06\n");
         actuator_count++;
         setActuators(brain_packet, brain_idx, 1);
       } else if (brain_packet[brain_idx-2] == '1' && brain_packet[brain_idx-1] == '1') {
-        Serial.write("ACTUATOR 11\n");
+        //Serial.write("ACTUATOR 11\n");
         actuator_count++;
         setActuators(brain_packet, brain_idx, 2);
       } else {
         actuator_count++;
-        sendData(altSerial, brain_packet, 125);
+        //sendData(altSerial, brain_packet, 125);
       }
     }
     free(brain_packet);
   }
 
   //test to make sure we got the goods
-  Serial.write("Weights:\n");
+  /*Serial.write("Weights:\n");
   for (int i = 0; i < SIZE; i++) {
     Serial.print(actuators[0].weights[i],4);
     Serial.write(", ");
@@ -124,7 +124,7 @@ void getBrainData(){
   Serial.write(", ");
   Serial.print(actuators[1].tau,4);
   Serial.write(", ");
-  Serial.println(actuators[2].tau,4);
+  Serial.println(actuators[2].tau,4);*/
   //while(1);
 }
 
@@ -140,7 +140,7 @@ void sendPhaseData(int from, float phase){
   dtostrf(phase, 6, 4, ptr+5);
   ptr[12] = '\n';
   //Segment 1 hardware TX, rest alt TX
-  sendData(Serial, ptr, 14);
+  sendData(Serial, ptr, 14); 
   sendData(altSerial, ptr, 14);
   free(ptr);
   
