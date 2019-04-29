@@ -1,6 +1,6 @@
 #include <RingBuf.h>
 #include <AltSoftSerial.h>
-#include "Serial_FL.h"
+#include "Serial_IB.h"
 #include "communication.h"
 
 bool actuators_set[3] = {false,false,false};
@@ -58,15 +58,15 @@ void getBrainData(){
     if (brain_packet[brain_idx] == 'b') {//just to verify
       brain_idx += 4;
       if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '3') {
-        Serial.write("ACTUATOR 03\n");
+        //Serial.write("ACTUATOR 03\n");
         actuator_count++;
         setActuators(brain_packet, brain_idx, 0);
       } else if (brain_packet[brain_idx-2] == '0' && brain_packet[brain_idx-1] == '8') {
-        Serial.write("ACTUATOR 08\n");
+        //Serial.write("ACTUATOR 08\n");
         actuator_count++;
         setActuators(brain_packet, brain_idx, 1);
       } else if (brain_packet[brain_idx-2] == '1' && brain_packet[brain_idx-1] == '3') {
-        Serial.write("ACTUATOR 13\n");
+        //Serial.write("ACTUATOR 13\n");
         actuator_count++;
         setActuators(brain_packet, brain_idx, 2);
       } else {
@@ -78,7 +78,7 @@ void getBrainData(){
   }
 
   //test to make sure we got the goods
-  Serial.write("Weights:\n");
+  /*Serial.write("Weights:\n");
   for (int i = 0; i < SIZE; i++) {
     Serial.print(actuators[0].weights[i],4);
     Serial.write(", ");
@@ -111,13 +111,24 @@ void getBrainData(){
   Serial.write(", ");
   Serial.print(actuators[1].tau,4);
   Serial.write(", ");
-  Serial.println(actuators[2].tau,4);
+  Serial.println(actuators[2].tau,4);*/
 }
 
 // Sends data to all other 4 arduinos.
 // from: index of actuator that corresponds to phase 
 void sendData(int from, float phase){
-
+  char *ptr = (char*) malloc(13*sizeof(char));
+  ptr[0] = 's';
+  ptr[1] = ' ';
+  ptr[2] = (from/10)+0x30;
+  ptr[3] = (from%10)+0x30;
+  ptr[4] = ' ';
+  dtostrf(phase, 6, 4, ptr+5);
+  ptr[12] = '\n';
+  //Segments 1-3 hardware TX, segment 5 alt TX
+  sendData(Serial, ptr, 14);
+  sendData(altSerial, ptr, 14);
+  free(ptr);
   
 }
 
@@ -127,7 +138,40 @@ void sendData(int from, float phase){
 // Actuator 1 is listening for actuators 5,6,7,9
 // Actuator 2 is listening for actuators 10,11,12,14
 void readData(){
-  
+  //listening from hardware RX for segments1-3, alt RX for segment 5
+  static int read_flag = 0;
+
+  //bits 0-2, 4-7, 9-12, 14 will be set when all data received
+  //0101 1110 1111 0111 --> 0x5EF7
+  uint16_t listening = 0;
+
+  while(listening != 0x5EF7){
+    while(seg_buf->isEmpty(seg_buf)){
+      readData(altSerial, read_flag, 1);
+      readData(Serial, read_flag, 2);
+    }
+    while(!seg_buf->isEmpty(seg_buf)){
+      char *phase_data = (char *) malloc(13*sizeof(char));
+      seg_buf->pull(seg_buf, phase_data);
+      if (phase_data[0] == 's'){
+        int from = atoi(phase_data+2);
+        //I don't remember where the phases go so I'm gonna assume
+        //e.g. in 3's case: self,0,1,2,4,8,13
+        if (from < 5){
+          if (from == 4) actuators[0].neighbor_phases[4] = atof(phase_data+5);
+          else actuators[0].neighbor_phases[from+1] = atof(phase_data+5);
+        } else if (from < 10){
+          if (from == 9) actuators[1].neighbor_phases[4] = atof(phase_data+5);
+          else actuators[1].neighbor_phases[from-4] = atof(phase_data+5);
+        } else {
+          if (from == 14) actuators[2].neighbor_phases[4] = atof(phase_data+5);
+          else actuators[2].neighbor_phases[from-9] = atof(phase_data+5);
+        }
+        listening |= (1 << from);
+      }
+      free(phase_data);
+    }
+  }
 
   
 }

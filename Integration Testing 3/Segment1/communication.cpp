@@ -169,22 +169,17 @@ void readPhaseData(){
   //bits 1-4, 6-9, 11-14 will be set when all data received
   //0111 1011 1101 1110 --> 0x7BDE
   uint16_t listening = 0;
-
-  //for the time being we're only testing with seg1 and seg2,
-  //so we'll only block for actuators 1,6,11
-  //0111 0011 1001 1100 --> 0x739C
-  listening |= 0x739C;
   
   while(listening != 0x7BDE) {
     while(seg_buf->isEmpty(seg_buf)){
       readData(Serial, read_flag, 2);
     }
-    Serial.write("WE OUT\n");
+    //Serial.write("WE OUT\n");
     while(!seg_buf->isEmpty(seg_buf)){
       char *phase_data = (char *) malloc(13*sizeof(char));
       seg_buf->pull(seg_buf, phase_data);
-      Serial.write(phase_data,13);
-      Serial.println();
+      //Serial.write(phase_data,13);
+      //Serial.println();
       if (phase_data[0] == 's'){//verify that it is indeed phase data
         //who is it from
         int from = atoi(phase_data+2);

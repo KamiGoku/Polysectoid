@@ -1,6 +1,6 @@
 #include <AltSoftSerial.h>
 #include <RingBuf.h>
-#include "Serial_FL.h"
+#include "Serial_IB.h"
 #include "communication.h" 
 
 Actuator actuators [3];    // Oscillators 3, 8, 13

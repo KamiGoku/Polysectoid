@@ -84,7 +84,7 @@ void getBrainData(){
         setActuators(brain_packet, brain_idx, 2);
       } else {
         actuator_count++;
-        //sendData(altSerial, brain_packet, 125);
+        sendData(altSerial, brain_packet, 125);
       }
     }
     free(brain_packet);
@@ -158,11 +158,6 @@ void readPhaseData(){
   //0111 0111 1011 1101 --> 0x77BD
   uint16_t listening = 0;
 
-  //for the time being we're only testing with seg1 and seg2,
-  //so we'll only block for actuators 0,5,10
-  //0111 0011 1001 1100 --> 0x739C
-  listening |= 0x739C;
-
   while(listening != 0x77BD){
     while(seg_buf->isEmpty(seg_buf)){
       //altSerial "which_buf" == 1
@@ -176,7 +171,7 @@ void readPhaseData(){
       if (phase_data[0] == 's'){
         int from = atoi(phase_data+2);
         //I don't remember where the phases go so I'm gonna assume
-        //e.g. in 1's case: self,0,2,3,4,5,10
+        //e.g. in 1's case: self,0,2,3,4,6,11
         if (from < 5){
           if (from == 0) actuators[0].neighbor_phases[1] = atof(phase_data+5);
           else actuators[0].neighbor_phases[from] = atof(phase_data+5);
